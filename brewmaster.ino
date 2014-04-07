@@ -1,8 +1,8 @@
 //  *
 //  *
 
-#include <OneWire.h>
-#include <DallasTemperature.h>
+#include <OneWire.h> //http://www.pjrc.com/teensy/td_libs_OneWire.html
+#include <DallasTemperature.h> // https://github.com/milesburton/Arduino-Temperature-Control-Library
 #include <Streaming.h> //http://arduiniana.org/libraries/streaming/
 
 #define StovePowerPin 12
@@ -23,6 +23,7 @@ float samples[10]; // variables to make a better precision
 int sirenState = LOW;
 int heatState = LOW;
 int heatLevel = 5;
+int incomingByte = 0;
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
@@ -48,7 +49,8 @@ DeviceAddress  T2Thermometer =  {
 
 void setup(void)
 {
-  
+  Serial1.begin(19200); // era beginSerial
+  Serial.begin(19200);
   LCDSetup();
 
   clearLCD();
@@ -57,8 +59,7 @@ void setup(void)
 
   pinMode(AlarmPin, OUTPUT);
   digitalWrite(AlarmPin, sirenState);
-  Serial1.begin(19200); // era beginSerial
-  Serial.begin(9600);
+
   
  
   // Start up the library
@@ -126,12 +127,28 @@ void loop()
   Serial1.write(0);
   
     delay(200);
+    echoKeys();
 }
 
 float getTemperature(DeviceAddress deviceAddress)
 {
   float tempF = sensors.getTempF(deviceAddress);
   return tempF;
+}
+
+void echoKeys {
+//Request keypresses
+Serial1.write(254);
+  Serial1.write(38);
+  Serial1.read();
+  
+  if (Serial1.available() > 0) {
+                  // read the incoming byte:
+                  incomingByte = Serial1.read();
+
+                  // say what you got:
+                  Serial.print("I received: ");
+                  Serial.println(incomingByte, DEC);
 }
 
 //  LCD  FUNCTIONS-- keep the ones you need. 
@@ -218,10 +235,10 @@ void LCDSetup(){
   //         Serial1.write(254);
   //         Serial1.write(81);     
   //       
-  //       Turn Auto scroll OFF
-  Serial1.write(254);
-  Serial1.write(82); 
-  delay(200);
+  //       Turn Auto scroll OFF / already off by default
+ // Serial1.write(254);
+ // Serial1.write(82); 
+//  delay(200);
 
   //       Turn ON AUTO line wrap
   //         Serial1.write(254); 
@@ -238,6 +255,18 @@ void LCDSetup(){
   Serial1.write(254);
   Serial1.write(84);   
 delay(200);  
+
+//Enable Keypad Mode / Already default
+//Serial1.write(254);
+//  Serial1.write(37);
+//  Serial1.write(0);
+
+
+
+
+//Turn off auto transmit keypress
+  Serial1.write(254);
+    Serial1.write(79);
 
   //       Turn ON the block cursor
   //         Serial1.write(254);
