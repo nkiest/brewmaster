@@ -136,7 +136,7 @@ float getTemperature(DeviceAddress deviceAddress)
   return tempF;
 }
 
-void echoKeys {
+void echoKeys () {
 //Request keypresses
 Serial1.write(254);
   Serial1.write(38);
@@ -149,7 +149,7 @@ Serial1.write(254);
                   // say what you got:
                   Serial.print("I received: ");
                   Serial.println(incomingByte, DEC);
-}
+}}
 
 //  LCD  FUNCTIONS-- keep the ones you need. 
 
