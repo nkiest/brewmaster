@@ -7,7 +7,6 @@
 
 #define StovePowerPin 12
 #define PumpPowerPin 13
-#define StovePowerPin 12
 #define ONE_WIRE_BUS 2
 #define potentiometerPin A0
 #define TEMPERATURE_PRECISION 10
@@ -23,15 +22,15 @@ float samples[10]; // variables to make a better precision
 int sirenState = LOW;
 int heatState = LOW;
 int heatLevel = 5;
-int incomingByte = 0;
+
+char inChar;
+String inputString = "";         // a string to hold incoming data
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 
 // Pass our oneWire reference to Dallas Temperature. 
 DallasTemperature sensors(&oneWire);
-
-
 
 int potentiometerValue = 0;
 
@@ -41,11 +40,10 @@ DeviceAddress  T1Thermometer = {
   0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E
 DeviceAddress  T2Thermometer =  {
   0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
-  
-  unsigned long lastTempRequest = 0;
-  int  delayInMillis = 0;
-  int  idle = 0;
 
+unsigned long lastTempRequest = 0;
+int  delayInMillis = 0;
+int  idle = 0;
 
 void setup(void)
 {
@@ -53,14 +51,9 @@ void setup(void)
   Serial.begin(19200);
   LCDSetup();
 
-
-  
-
   pinMode(AlarmPin, OUTPUT);
   digitalWrite(AlarmPin, sirenState);
 
-  
- 
   // Start up the library
   sensors.begin();
   sensors.setWaitForConversion(false);  // makes it async
@@ -70,39 +63,34 @@ void setup(void)
   delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION)); 
   lastTempRequest = millis(); 
 
- // locate devices on the bus
+  // locate devices on the bus
   Serial << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
 
-clearLCD();
-
-}
-
-
-//  MAIN CODE
-
-void loop()
-{ 
   //read pot, scale and shift into setpoint
   potentiometerValue = analogRead(potentiometerPin);
   setpoint = potentiometerValue / 6.74 + 60; //Min 60 Max 212 Range 152
-  
+
+  clearLCD();
+}
+
+//  MAIN CODE
+void loop()
+{ 
   if (millis() - lastTempRequest >= delayInMillis) // waited long enough??
-    {
-      // get temperature
-      T1Temp = getTemperature(T1Thermometer);
-      T2Temp = getTemperature(T2Thermometer);
-      Serial << "Time " << millis() << ", T1 Temperature: " << T1Temp << ", T2 Temperature: " << T2Temp << endl;
-      
-      //async temp conversion request
-      sensors.requestTemperatures();
-      delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION));
-      lastTempRequest = millis(); 
-    }
+  {
+    // get temperature
+    T1Temp = getTemperature(T1Thermometer);
+    T2Temp = getTemperature(T2Thermometer);
+    Serial << "Time " << millis() << ", T1 Temperature: " << T1Temp << ", T2 Temperature: " << T2Temp << endl;
 
+    //async temp conversion request
+    sensors.requestTemperatures();
+    delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION));
+    lastTempRequest = millis(); 
+  }
 
-  
   if (T1Temp > setpoint){
-      sirenState = HIGH;
+    sirenState = HIGH;
   }
   else {
     sirenState = LOW;
@@ -124,9 +112,9 @@ void loop()
   Serial1.print("2:");
   Serial1.print(T2Temp, 1);
   Serial1.write(0);
-  
-    delay(200);
-    echoKeys();
+
+  delay(200);
+  echoKeys();
 }
 
 float getTemperature(DeviceAddress deviceAddress)
@@ -136,20 +124,32 @@ float getTemperature(DeviceAddress deviceAddress)
 }
 
 void echoKeys () {
-//Request keypresses
-Serial1.write(254);
+  //Request keypresses
+  Serial1.write(254);
   Serial1.write(38);
   Serial1.read();
-  
+
   if (Serial1.available() > 0) {
-                  // read the incoming byte:
-                  incomingByte = Serial1.read();
+    // read the incoming byte:
+    char inChar = (char)Serial1.read();
+    
+    //Add inChar to inputString
+    inputString += inChar;
+    
+    // say what you got:
+    Serial.print("I received: ");
+    Serial.println(inChar, DEC);
+    Serial.print("Input String so far: ");
+    Serial.println(inputString); 
+  }
+  
+  if (inputString.length() > 2) {
+      setpoint = inputString.toInt()
+      inputString = "";
+    } 
+}
 
-                  // say what you got:
-                  Serial.print("I received: ");
-                  Serial.println(incomingByte, DEC);
-}}
-
+//------------------------------------------
 //  LCD  FUNCTIONS-- keep the ones you need. 
 
 // clear the LCD
@@ -157,19 +157,16 @@ void clearLCD(){
   Serial1.write(12);
 }
 
-
 // start a new line
 void newLine() { 
   Serial1.write(10); 
 }
-
 
 // move the cursor to the home position
 void cursorHome(){
   Serial1.write(254);
   Serial1.write(72);
 }
-
 
 // move the cursor to a specific place
 // e.g.: cursorSet(3,2) sets the cursor to x = 3 and y = 2
@@ -178,15 +175,12 @@ void cursorSet(int xpos, int ypos){
   Serial1.write(71);               
   Serial1.write(xpos);   //Column position   
   Serial1.write(ypos); //Row position 
-
 } 
-
 
 // backspace and erase previous character
 void backSpace() { 
   Serial1.write(8); 
 }
-
 
 // move cursor left
 void cursorLeft(){    
@@ -194,13 +188,11 @@ void cursorLeft(){
   Serial1.write(76);   
 }
 
-
 // move cursor right
 void cursorRight(){
   Serial1.write(254); 
   Serial1.write(77);   
 }
-
 
 // set LCD contrast
 void setContrast(int contrast){
@@ -217,7 +209,6 @@ void backlightOn(int minutes){
   Serial1.write(minutes); // use 0 minutes to turn the backlight on indefinitely   
 }
 
-
 // turn off backlight
 void backlightOff(){
   Serial1.write(254); 
@@ -225,24 +216,6 @@ void backlightOff(){
 }
 
 void LCDSetup(){
-
-  //       LCD setup commands: uncomment the ones you want to use
-  //       Note: These codes (i.e. the ones following 254) may have to be changed for 
-  //       different manufacturer's displays
-
-  //       Turn Auto scroll ON
-  //         Serial1.write(254);
-  //         Serial1.write(81);     
-  //       
-  //       Turn Auto scroll OFF / already off by default
- // Serial1.write(254);
- // Serial1.write(82); 
-//  delay(200);
-
-  //       Turn ON AUTO line wrap
-  //         Serial1.write(254); 
-  //         Serial1.write(67);              
-
   //       Turn OFF AUTO line wrap
   Serial1.write(254); 
   Serial1.write(68); 
@@ -253,19 +226,19 @@ void LCDSetup(){
   //       cursors may give unpredictable results. 
   Serial1.write(254);
   Serial1.write(84);   
-delay(200);  
+  delay(200);  
 
-//Enable Keypad Mode / Already default
-//Serial1.write(254);
-//  Serial1.write(37);
-//  Serial1.write(0);
-
-
+  //Enable Keypad Mode / Already default
+  //Serial1.write(254);
+  //  Serial1.write(37);
+  //  Serial1.write(0);
 
 
-//Turn off auto transmit keypress
+
+
+  //Turn off auto transmit keypress
   Serial1.write(254);
-    Serial1.write(79);
+  Serial1.write(79);
 
   //       Turn ON the block cursor
   //         Serial1.write(254);
@@ -292,7 +265,7 @@ delay(200);
   Serial1.write(0); 
   Serial1.write(0);
   delay(200);
-  
+
   // Update keypad keys
   Serial1.write(254);
   Serial1.write(213);
@@ -320,8 +293,9 @@ delay(200);
   Serial1.write(57);
   Serial1.write(52);
   Serial1.write(49);
-  
+
   clearLCD();
   Serial1.print("Booting"); 
 }
+
 
