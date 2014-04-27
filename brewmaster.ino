@@ -53,8 +53,7 @@ void setup(void)
   Serial.begin(19200);
   LCDSetup();
 
-  clearLCD();
-  Serial1.print("Booting"); 
+
   
 
   pinMode(AlarmPin, OUTPUT);
@@ -293,5 +292,36 @@ delay(200);
   Serial1.write(0); 
   Serial1.write(0);
   delay(200);
+  
+  // Update keypad keys
+  Serial1.write(254);
+  Serial1.write(213);
+  Serial1.write(48);
+  Serial1.write(57);
+  Serial1.write(54);
+  Serial1.write(51);
+  Serial1.write(56);
+  Serial1.write(53);
+  Serial1.write(53);
+  Serial1.write(50);
+  Serial1.write(55);
+  Serial1.write(57);
+  Serial1.write(52);
+  Serial1.write(49);
+  Serial1.write(48);
+  Serial1.write(57);
+  Serial1.write(54);
+  Serial1.write(51);
+  Serial1.write(56);
+  Serial1.write(53);
+  Serial1.write(53);
+  Serial1.write(50);
+  Serial1.write(55);
+  Serial1.write(57);
+  Serial1.write(52);
+  Serial1.write(49);
+  
+  clearLCD();
+  Serial1.print("Booting"); 
 }
 
