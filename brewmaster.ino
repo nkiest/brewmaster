@@ -1,25 +1,26 @@
 //  *
 //  *
 
-#include <OneWire.h> //http://www.pjrc.com/teensy/td_libs_OneWire.html
+#include <OneWire.h> // http://www.pjrc.com/teensy/td_libs_OneWire.html
 #include <DallasTemperature.h> // https://github.com/milesburton/Arduino-Temperature-Control-Library
-#include <Streaming.h> //http://arduiniana.org/libraries/streaming/
+#include <Streaming.h> // http://arduiniana.org/libraries/streaming/
 
 #define StovePowerPin 12
 #define PumpPowerPin 13
 #define ONE_WIRE_BUS 2
-#define potentiometerPin A0
 #define TEMPERATURE_PRECISION 10
 #define AlarmPin 8
+#define LEDPin 7
 
 // Declare your program variables here
 float T1Temp = 0; //in F
 float T2Temp = 0; //in F
-float setpoint = 151; //in F
+float setpoint = 60; //in F
 float diff = 1; // allowable differential
 int i = 0; //loop counter
 float samples[10]; // variables to make a better precision
 int sirenState = LOW;
+int LEDState = LOW;
 int heatState = LOW;
 int heatLevel = 5;
 
@@ -30,8 +31,6 @@ OneWire oneWire(ONE_WIRE_BUS);
 
 // Pass our oneWire reference to Dallas Temperature. 
 DallasTemperature sensors(&oneWire);
-
-int potentiometerValue = 0;
 
 // arrays to hold device addresses
 //DeviceAddress T1Thermometer, T2Thermometer;
@@ -51,7 +50,8 @@ void setup(void)
   LCDSetup();
 
   pinMode(AlarmPin, OUTPUT);
-  digitalWrite(AlarmPin, sirenState);
+  analogWrite(AlarmPin, sirenState);
+  pinMode(LEDPin, OUTPUT);
 
   // Start up the library
   sensors.begin();
@@ -65,11 +65,10 @@ void setup(void)
   // locate devices on the bus
   Serial << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
 
-  //read pot, scale and shift into setpoint
-  potentiometerValue = analogRead(potentiometerPin);
-  setpoint = potentiometerValue / 6.74 + 60; //Min 60 Max 212 Range 152
-
   clearLCD();
+  
+  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
+  TCCR4B = TCCR4B & B11111000 | B00000101;    // set timer 4 divisor to  1024 for PWM frequency of    30.64 Hz 
 }
 
 //  MAIN CODE
@@ -89,13 +88,15 @@ void loop()
   }
 
   if (T1Temp > setpoint){
-    sirenState = HIGH;
+    sirenState = 127;
+    LEDState = 127;
   }
   else {
     sirenState = LOW;
   }
 
-  digitalWrite(AlarmPin, sirenState);
+  analogWrite(AlarmPin, sirenState);
+  analogWrite(LEDPin, LEDState);
 
   //update display
   //clearLCD();
