@@ -23,7 +23,6 @@ int sirenState = LOW;
 int heatState = LOW;
 int heatLevel = 5;
 
-char inChar;
 String inputString = "";         // a string to hold incoming data
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -48,7 +47,7 @@ int  idle = 0;
 void setup(void)
 {
   Serial1.begin(19200); // era beginSerial
-  Serial.begin(19200);
+  Serial.begin(9600);
   LCDSetup();
 
   pinMode(AlarmPin, OUTPUT);
@@ -114,7 +113,6 @@ void loop()
   Serial1.write(0);
 
   delay(200);
-  echoKeys();
 }
 
 float getTemperature(DeviceAddress deviceAddress)
@@ -123,30 +121,25 @@ float getTemperature(DeviceAddress deviceAddress)
   return tempF;
 }
 
-void echoKeys () {
-  //Request keypresses
-  Serial1.write(254);
-  Serial1.write(38);
-  Serial1.read();
-
-  if (Serial1.available() > 0) {
-    // read the incoming byte:
-    char inChar = (char)Serial1.read();
-    
-    //Add inChar to inputString
+void serialEvent1() {
+  while (Serial1.available()) {
+    // get the new byte:
+    char inChar = (char)Serial1.read(); 
+    // add it to the inputString:
     inputString += inChar;
-    
+    // if the incoming character is a newline, set a flag
+    // so the main loop can do something about it:
+
     // say what you got:
     Serial.print("I received: ");
     Serial.println(inChar, DEC);
     Serial.print("Input String so far: ");
     Serial.println(inputString); 
-  }
-  
-  if (inputString.length() > 2) {
-      setpoint = inputString.toInt()
+    if (inputString.length() > 2) {
+      setpoint = inputString.toInt();
       inputString = "";
     } 
+  }
 }
 
 //------------------------------------------
@@ -234,11 +227,13 @@ void LCDSetup(){
   //  Serial1.write(0);
 
 
-
-
   //Turn off auto transmit keypress
+  //Serial1.write(254);
+  //Serial1.write(79);
+
+  //Turn on auto transmit keypress
   Serial1.write(254);
-  Serial1.write(79);
+  Serial1.write(65);
 
   //       Turn ON the block cursor
   //         Serial1.write(254);
@@ -297,5 +292,7 @@ void LCDSetup(){
   clearLCD();
   Serial1.print("Booting"); 
 }
+
+
 
 
