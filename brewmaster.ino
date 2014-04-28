@@ -5,7 +5,9 @@
 #include <DallasTemperature.h> // https://github.com/milesburton/Arduino-Temperature-Control-Library
 #include <Streaming.h> // http://arduiniana.org/libraries/streaming/
 
-#define StovePowerPin 8
+
+//define pins
+#define ElementPowerPin 8
 #define PumpPowerPin 13
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 10
@@ -21,84 +23,35 @@ float samples[10]; // variables to make a better precision
 unsigned int sirenState = LOW;
 int heatState = LOW;
 int heatLevel = 5;
-boolean stringComplete = false;  // whether the string is complete
-
-String keypadInputString = "";         // a string to hold incoming data
-String serialInputString = "";         // a string to hold incoming data
-
-// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-OneWire oneWire(ONE_WIRE_BUS);
-
-// Pass our oneWire reference to Dallas Temperature. 
-DallasTemperature sensors(&oneWire);
-
+boolean stringComplete = false; // whether the string is complete
+String keypadInputString = ""; // a string to hold incoming data
+String serialInputString = ""; // a string to hold incoming data
+OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
+DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature.
 // arrays to hold device addresses
-// DeviceAddress T1Thermometer, T2Thermometer;
-DeviceAddress  T1Thermometer = {
-  0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E
-DeviceAddress  T2Thermometer =  {
-  0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
-
+DeviceAddress  T1Thermometer = { 0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E
+DeviceAddress  T2Thermometer =  { 0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
 unsigned long lastTempRequest = 0;
 unsigned long lastLCDUpdate = 0;
-int  delayInMillis = 0;
-int  idle = 0;
+int delayInMillis = 0;
+int idle = 0;
+int elementPowerLevel = 0;
 
-void setup(void)
-{
-  keypadInputString.reserve(8);
-  serialInputString.reserve(100);
-  Serial1.begin(19200); // era beginSerial
-  Serial.begin(9600);
-  LCDSetup();
-
-  pinMode(AlarmPin, OUTPUT);
-  analogWrite(AlarmPin, sirenState);
-
-  // Start up the library
-  sensors.begin();
-  sensors.setWaitForConversion(false);  // makes it async
-  sensors.setResolution(T1Thermometer, TEMPERATURE_PRECISION);
-  sensors.setResolution(T2Thermometer, TEMPERATURE_PRECISION);
-  sensors.requestTemperatures();
-  delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION)); 
-  lastTempRequest = millis(); 
-
-  // locate devices on the bus
-  Serial << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
-
-  clearLCD();
-  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
-  TCCR4B = TCCR4B & B11111000 | B00000101; // set timer 4 divisor to  1024 for PWM frequency of 30.64 Hz
-  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
-  TCCR2B = TCCR2B & 0b11111000 | 0x06; //122hz
-}
 
 //  MAIN CODE
 void loop()
 { 
-  if (millis() - lastTempRequest >= delayInMillis) // waited long enough??
-  {
-    // get temperature
-    T1Temp = getTemperature(T1Thermometer);
-    T2Temp = getTemperature(T2Thermometer);
-    Serial << "Time " << millis() << ", T1 Temperature: " << T1Temp << ", T2 Temperature: " << T2Temp << endl;
-
-    //async temp conversion request
-    sensors.requestTemperatures();
-    delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION));
-    lastTempRequest = millis(); 
-  }
+  if (millis() - lastTempRequest >= delayInMillis) readTemps();
 
   if (T1Temp > setpoint){
     sirenState = (T1Temp - setpoint) * 8;
-
   }
   else {
     sirenState = LOW;
   }
 
   analogWrite(AlarmPin, sirenState);
+  analogWrite(ElementPowerPin, elementPowerLevel);
   
   if (stringComplete) {
     Serial.println(serialInputString); 
@@ -110,11 +63,18 @@ void loop()
     stringComplete = false;
   }
   
-  if(millis() - lastLCDUpdate >= 500)
-  updateDisplay();
- 
+  if (millis() - lastLCDUpdate >= 1000) updateDisplay();
 
   delay(200);
+}
+
+void readTemps(){
+  // get temperature
+  T1Temp = getTemperature(T1Thermometer);
+  T2Temp = getTemperature(T2Thermometer);
+  Serial << "Time " << millis() << ", T1 Temperature: " << T1Temp << ", T2 Temperature: " << T2Temp << endl; //write temp to serial
+  sensors.requestTemperatures();  //async temp conversion request
+  lastTempRequest = millis();
 }
 
 void updateDisplay(){
@@ -165,6 +125,35 @@ void serialEvent() {
   }
 }
 
+void setup(void)
+{
+  keypadInputString.reserve(8);
+  serialInputString.reserve(100);
+  Serial1.begin(19200); // era beginSerial
+  Serial.begin(9600);
+  LCDSetup();
+
+  pinMode(AlarmPin, OUTPUT);
+  analogWrite(AlarmPin, sirenState);
+
+  // Start up the library
+  sensors.begin();
+  sensors.setWaitForConversion(false);  // makes it async
+  sensors.setResolution(T1Thermometer, TEMPERATURE_PRECISION);
+  sensors.setResolution(T2Thermometer, TEMPERATURE_PRECISION);
+  sensors.requestTemperatures();
+  delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION)); 
+  lastTempRequest = millis(); 
+
+  // locate devices on the bus
+  Serial << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
+
+  clearLCD();
+  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
+  TCCR4B = TCCR4B & B11111000 | B00000101; // set timer 4 divisor to  1024 for PWM frequency of 30.64 Hz
+  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
+  TCCR2B = TCCR2B & 0b11111000 | 0x06; //122hz
+}
 
 //------------------------------------------
 //  LCD  FUNCTIONS-- keep the ones you need. 
