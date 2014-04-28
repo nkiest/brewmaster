@@ -4,7 +4,7 @@
 #include <OneWire.h> // http://www.pjrc.com/teensy/td_libs_OneWire.html
 #include <DallasTemperature.h> // https://github.com/milesburton/Arduino-Temperature-Control-Library
 #include <Streaming.h> // http://arduiniana.org/libraries/streaming/
-
+#include <Metro.h> // Include Metro library https://github.com/thomasfredericks/Metro-Arduino-Wiring/wiki
 
 //define pins
 #define ElementPowerPin 8
@@ -29,52 +29,56 @@ String serialInputString = ""; // a string to hold incoming data
 OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
 DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature.
 // arrays to hold device addresses
-DeviceAddress  T1Thermometer = { 0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E
-DeviceAddress  T2Thermometer =  { 0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
+DeviceAddress  T1Thermometer = { 
+  0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E
+DeviceAddress  T2Thermometer =  { 
+  0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
 unsigned long lastTempRequest = 0;
-unsigned long lastLCDUpdate = 0;
 int delayInMillis = 0;
 int idle = 0;
 int elementPowerLevel = 0;
+Metro metro1000 = Metro(1000);
+Metro metro100 = Metro(100);
+
 
 
 //  MAIN CODE
 void loop()
 { 
-  if (millis() - lastTempRequest >= delayInMillis) readTemps();
+  if (millis() - lastTempRequest >= delayInMillis) readTempsAndUpdate();
 
-  if (T1Temp > setpoint){
-    sirenState = (T1Temp - setpoint) * 8;
-  }
-  else {
-    sirenState = LOW;
+  if (metro100.check() == 1){
+    analogWrite(AlarmPin, sirenState);
+    analogWrite(ElementPowerPin, elementPowerLevel);
   }
 
-  analogWrite(AlarmPin, sirenState);
-  analogWrite(ElementPowerPin, elementPowerLevel);
-  
   if (stringComplete) {
     Serial.println(serialInputString); 
-    // clear the string:
     if (serialInputString.toInt() != 0){
-    setpoint = serialInputString.toInt();
+      setpoint = serialInputString.toInt();
     }
     serialInputString = "";
     stringComplete = false;
   }
-  
-  if (millis() - lastLCDUpdate >= 1000) updateDisplay();
 
-  delay(200);
+  if (metro1000.check() == 1) updateDisplay();
+
 }
 
-void readTemps(){
+void readTempsAndUpdate(){
   // get temperature
   T1Temp = getTemperature(T1Thermometer);
   T2Temp = getTemperature(T2Thermometer);
   Serial << "Time " << millis() << ", T1 Temperature: " << T1Temp << ", T2 Temperature: " << T2Temp << endl; //write temp to serial
   sensors.requestTemperatures();  //async temp conversion request
   lastTempRequest = millis();
+  //set siren
+  if (T1Temp > setpoint){
+    sirenState = (T1Temp - setpoint) * 8;
+  }
+  else {
+    sirenState = LOW;
+  }
 }
 
 void updateDisplay(){
@@ -305,6 +309,7 @@ void LCDSetup(){
   clearLCD();
   Serial1.print("Booting"); 
 }
+
 
 
 
