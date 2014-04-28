@@ -5,24 +5,26 @@
 #include <DallasTemperature.h> // https://github.com/milesburton/Arduino-Temperature-Control-Library
 #include <Streaming.h> // http://arduiniana.org/libraries/streaming/
 
-#define StovePowerPin 12
+#define StovePowerPin 8
 #define PumpPowerPin 13
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 10
-#define AlarmPin 8
+#define AlarmPin 3
 
 // Declare your program variables here
 float T1Temp = 0; //in F
 float T2Temp = 0; //in F
-float setpoint = 60; //in F
+float setpoint = 151; //in F
 float diff = 1; // allowable differential
 int i = 0; //loop counter
 float samples[10]; // variables to make a better precision
-int sirenState = LOW;
+unsigned int sirenState = LOW;
 int heatState = LOW;
 int heatLevel = 5;
+boolean stringComplete = false;  // whether the string is complete
 
-String inputString = "";         // a string to hold incoming data
+String keypadInputString = "";         // a string to hold incoming data
+String serialInputString = "";         // a string to hold incoming data
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
@@ -31,18 +33,21 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 // arrays to hold device addresses
-//DeviceAddress T1Thermometer, T2Thermometer;
+// DeviceAddress T1Thermometer, T2Thermometer;
 DeviceAddress  T1Thermometer = {
   0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E
 DeviceAddress  T2Thermometer =  {
   0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
 
 unsigned long lastTempRequest = 0;
+unsigned long lastLCDUpdate = 0;
 int  delayInMillis = 0;
 int  idle = 0;
 
 void setup(void)
 {
+  keypadInputString.reserve(8);
+  serialInputString.reserve(100);
   Serial1.begin(19200); // era beginSerial
   Serial.begin(9600);
   LCDSetup();
@@ -63,9 +68,10 @@ void setup(void)
   Serial << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
 
   clearLCD();
-  
   //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
-  TCCR4B = TCCR4B & B11111000 | B00000101;    // set timer 4 divisor to  1024 for PWM frequency of    30.64 Hz 
+  TCCR4B = TCCR4B & B11111000 | B00000101; // set timer 4 divisor to  1024 for PWM frequency of 30.64 Hz
+  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
+  TCCR2B = TCCR2B & 0b11111000 | 0x06; //122hz
 }
 
 //  MAIN CODE
@@ -85,15 +91,28 @@ void loop()
   }
 
   if (T1Temp > setpoint){
-    sirenState = 127;
+    sirenState = (T1Temp - setpoint) * 8;
+
   }
   else {
     sirenState = LOW;
   }
 
   analogWrite(AlarmPin, sirenState);
-
+  
+  if (stringComplete) {
+    Serial.println(serialInputString); 
+    // clear the string:
+    if (serialInputString.toInt() != 0){
+    setpoint = serialInputString.toInt();
+    }
+    serialInputString = "";
+    stringComplete = false;
+  }
+  
+  if(millis() - lastLCDUpdate >= 500)
   updateDisplay();
+ 
 
   delay(200);
 }
@@ -123,22 +142,29 @@ void serialEvent1() {
   while (Serial1.available()) {
     // get the new byte:
     char inChar = (char)Serial1.read(); 
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it:
-
-    // say what you got:
-    Serial.print("I received: ");
-    Serial.println(inChar);
-    Serial.print("Input String so far: ");
-    Serial.println(inputString); 
-    if (inputString.length() > 2) {
-      setpoint = inputString.toInt();
-      inputString = "";
+    // add it to the keypadInputString:
+    keypadInputString += inChar;
+    //turn keypadInputString into setpoint once 3 chars come in
+    if (keypadInputString.length() > 2) {
+      setpoint = keypadInputString.toInt();
+      keypadInputString = "";
     } 
   }
 }
+
+void serialEvent() {
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read(); 
+    // add it to the inputString:
+    serialInputString += inChar;
+    //turn inputstring into setpoint once 3 chars come in
+    if (inChar == ',') {
+      stringComplete = true;
+    } 
+  }
+}
+
 
 //------------------------------------------
 //  LCD  FUNCTIONS-- keep the ones you need. 
@@ -290,6 +316,7 @@ void LCDSetup(){
   clearLCD();
   Serial1.print("Booting"); 
 }
+
 
 
 
