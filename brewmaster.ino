@@ -10,7 +10,7 @@
 #define ElementPowerPin 8
 #define PumpPowerPin 13
 #define ONE_WIRE_BUS 2
-#define TEMPERATURE_PRECISION 10
+#define TEMPERATURE_PRECISION 11
 #define AlarmPin 3
 
 // Declare your program variables here
@@ -39,13 +39,13 @@ int idle = 0;
 int elementPowerLevel = 0;
 Metro metro1000 = Metro(1000);
 Metro metro100 = Metro(100);
-
+Metro metro500 = Metro(500);
 
 
 //  MAIN CODE
 void loop()
 { 
-  if (millis() - lastTempRequest >= delayInMillis) readTempsAndUpdate();
+   if (metro500.check() == 1) readTempsAndUpdate();
 
   if (metro100.check() == 1){
     analogWrite(AlarmPin, sirenState);
@@ -56,6 +56,8 @@ void loop()
     Serial.println(serialInputString); 
     if (serialInputString.toInt() != 0){
       setpoint = serialInputString.toInt();
+      clearLCD();
+      updateDisplay();
     }
     serialInputString = "";
     stringComplete = false;
@@ -71,7 +73,6 @@ void readTempsAndUpdate(){
   T2Temp = getTemperature(T2Thermometer);
   Serial << "Time " << millis() << ", T1 Temperature: " << T1Temp << ", T2 Temperature: " << T2Temp << endl; //write temp to serial
   sensors.requestTemperatures();  //async temp conversion request
-  lastTempRequest = millis();
   //set siren
   if (T1Temp > setpoint){
     sirenState = (T1Temp - setpoint) * 8;
@@ -111,6 +112,8 @@ void serialEvent1() {
     //turn keypadInputString into setpoint once 3 chars come in
     if (keypadInputString.length() > 2) {
       setpoint = keypadInputString.toInt();
+      clearLCD();
+      updateDisplay();
       keypadInputString = "";
     } 
   }
