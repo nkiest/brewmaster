@@ -10,7 +10,6 @@
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 10
 #define AlarmPin 8
-#define LEDPin 7
 
 // Declare your program variables here
 float T1Temp = 0; //in F
@@ -20,7 +19,6 @@ float diff = 1; // allowable differential
 int i = 0; //loop counter
 float samples[10]; // variables to make a better precision
 int sirenState = LOW;
-int LEDState = LOW;
 int heatState = LOW;
 int heatLevel = 5;
 
@@ -51,7 +49,6 @@ void setup(void)
 
   pinMode(AlarmPin, OUTPUT);
   analogWrite(AlarmPin, sirenState);
-  pinMode(LEDPin, OUTPUT);
 
   // Start up the library
   sensors.begin();
@@ -89,17 +86,19 @@ void loop()
 
   if (T1Temp > setpoint){
     sirenState = 127;
-    LEDState = 127;
   }
   else {
     sirenState = LOW;
   }
 
   analogWrite(AlarmPin, sirenState);
-  analogWrite(LEDPin, LEDState);
 
-  //update display
-  //clearLCD();
+  updateDisplay();
+
+  delay(200);
+}
+
+void updateDisplay(){
   cursorSet(0,1);
   Serial1.print("Set: ");
   Serial1.print(setpoint, 1);
@@ -112,8 +111,6 @@ void loop()
   Serial1.print("2:");
   Serial1.print(T2Temp, 1);
   Serial1.write(0);
-
-  delay(200);
 }
 
 float getTemperature(DeviceAddress deviceAddress)
@@ -133,7 +130,7 @@ void serialEvent1() {
 
     // say what you got:
     Serial.print("I received: ");
-    Serial.println(inChar, DEC);
+    Serial.println(inChar);
     Serial.print("Input String so far: ");
     Serial.println(inputString); 
     if (inputString.length() > 2) {
