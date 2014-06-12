@@ -71,7 +71,7 @@ void readTempsAndUpdate(){
   // get temperature
   T1Temp = getTemperature(T1Thermometer);
   T2Temp = getTemperature(T2Thermometer);
-  Serial << "Time " << millis() << ", T1 Temp: " << T1Temp << ", T2 Temp: " << T2Temp << ", Setpoint: " << setpoint <<", Power: " << elementPowerLevel << endl; //write temp to serial
+  Serial << millis() << ", " << T1Temp << ", " << T2Temp << ", " << setpoint <<", " << elementPowerLevel << endl; //write status to serial
   sensors.requestTemperatures();  //async temp conversion request
   //set siren
   if (T1Temp > setpoint){
@@ -177,6 +177,8 @@ void setup(void)
   // locate devices on the bus
   Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
   
+  // display line one of CSV format to serial
+  Serial << "Time, T1 Temp, T2 Temp, Setpoint, Power Level" << endl;
 
   clearLCD();
   //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
