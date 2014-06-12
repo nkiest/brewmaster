@@ -16,7 +16,7 @@
 // Declare your program variables here
 float T1Temp = 0; //in F
 float T2Temp = 0; //in F
-float setpoint = 151; //in F
+float setpoint = 65; //in F
 float diff = 1; // allowable differential
 int i = 0; //loop counter
 float samples[10]; // variables to make a better precision
@@ -45,7 +45,7 @@ Metro metro500 = Metro(500);
 //  MAIN CODE
 void loop()
 { 
-   if (metro500.check() == 1) readTempsAndUpdate();
+  if (metro500.check() == 1) readTempsAndUpdate();
 
   if (metro100.check() == 1){
     analogWrite(AlarmPin, sirenState);
@@ -71,7 +71,7 @@ void readTempsAndUpdate(){
   // get temperature
   T1Temp = getTemperature(T1Thermometer);
   T2Temp = getTemperature(T2Thermometer);
-  Serial << "Time " << millis() << ", T1 Temperature: " << T1Temp << ", T2 Temperature: " << T2Temp << endl; //write temp to serial
+  Serial << "Time " << millis() << ", T1 Temp: " << T1Temp << ", T2 Temp: " << T2Temp << ", Setpoint: " << setpoint <<", Power: " << elementPowerLevel << endl; //write temp to serial
   sensors.requestTemperatures();  //async temp conversion request
   //set siren
   if (T1Temp > setpoint){
@@ -80,13 +80,35 @@ void readTempsAndUpdate(){
   else {
     sirenState = LOW;
   }
+  //update burner
+  if (T1Temp < (setpoint - 5)){
+    elementPowerLevel = 255;
+  }
+  else if (T1Temp < (setpoint - 2)){
+    elementPowerLevel = 128;
+  }
+  else  if (T1Temp < (setpoint)){
+    elementPowerLevel = 8;
+  }
+  else {
+    elementPowerLevel = LOW;
+  }
 }
 
 void updateDisplay(){
+  clearLCD();
   cursorSet(0,1);
-  Serial1.print("Set: ");
+  Serial1.print("Set:");
   Serial1.print(setpoint, 1);
   Serial1.write(0);
+  cursorSet(12,1);
+  if (elementPowerLevel > 0){
+    Serial1.print("H:");
+    Serial1.print(elementPowerLevel);
+  }
+  else {
+    Serial1.print("      ");
+  }
   cursorSet(0,2);
   Serial1.print("1:");
   Serial1.print(T1Temp, 1);
@@ -153,7 +175,8 @@ void setup(void)
   lastTempRequest = millis(); 
 
   // locate devices on the bus
-  Serial << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
+  Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
+  
 
   clearLCD();
   //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
@@ -312,6 +335,8 @@ void LCDSetup(){
   clearLCD();
   Serial1.print("Booting"); 
 }
+
+
 
 
 
