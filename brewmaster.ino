@@ -63,7 +63,11 @@ void loop()
     stringComplete = false;
   }
 
-  if (metro1000.check() == 1) updateDisplay();
+  if (metro1000.check() == 1) {
+    updateDisplay();
+    Serial << (millis()/1000) << ", " << T1Temp << ", " << T2Temp << ", " << setpoint <<", " << elementPowerLevel << endl; //write status to serial
+
+  }
 
 }
 
@@ -71,7 +75,6 @@ void readTempsAndUpdate(){
   // get temperature
   T1Temp = getTemperature(T1Thermometer);
   T2Temp = getTemperature(T2Thermometer);
-  Serial << millis() << ", " << T1Temp << ", " << T2Temp << ", " << setpoint <<", " << elementPowerLevel << endl; //write status to serial
   sensors.requestTemperatures();  //async temp conversion request
   //set siren
   if (T1Temp > setpoint){
@@ -81,14 +84,28 @@ void readTempsAndUpdate(){
     sirenState = LOW;
   }
   //update burner
-  if (T1Temp < (setpoint - 5)){
-    elementPowerLevel = 255;
+  if (setpoint == 212){
+    if (T1Temp < (setpoint - 2)){
+      elementPowerLevel = 255;
+    }
+    else if(T1Temp < setpoint){
+      elementPowerLevel = 160;
+    }
+    else {
+      elementPowerLevel = LOW;
+    }
   }
   else if (T1Temp < (setpoint - 2)){
+    elementPowerLevel = 255;
+  }
+  else if (T1Temp < (setpoint - 1.5)){
     elementPowerLevel = 128;
   }
+  else if (T1Temp < (setpoint - .5)){
+    elementPowerLevel = 64;
+  }
   else  if (T1Temp < (setpoint)){
-    elementPowerLevel = 8;
+    elementPowerLevel = 16;
   }
   else {
     elementPowerLevel = LOW;
@@ -176,7 +193,7 @@ void setup(void)
 
   // locate devices on the bus
   Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
-  
+
   // display line one of CSV format to serial
   Serial << "Time, T1 Temp, T2 Temp, Setpoint, Power Level" << endl;
 
@@ -337,6 +354,9 @@ void LCDSetup(){
   clearLCD();
   Serial1.print("Booting"); 
 }
+
+
+
 
 
 
