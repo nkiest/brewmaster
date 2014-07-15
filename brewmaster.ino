@@ -38,7 +38,6 @@ boolean drainValve = off;
 boolean filteredWaterValve = off;
 boolean coolingWaterInValve = off;
 boolean coolingWaterOutValve = off;
-
 //sensors
 float kettleTemp = 0;
 float whirlpoolTemp = 0;
@@ -47,9 +46,6 @@ float weight = 0;
 boolean lidFloatSensor = 0;
 boolean coolingBottomFloatSensor = 0;
 boolean coolingTopFloatSensor = 0;
-
-
-
 
 //calculated state variables
 float mashWeight = 0;
@@ -65,18 +61,21 @@ float setpoint = 65; //in F
 float diff = 1; // allowable differential
 int i = 0; //loop counter
 unsigned int sirenState = LOW;
+int delayUntilMessage = 0; //Countdown to wait until sending success message for delayed valves, etc
 
 boolean stringComplete = false; // whether the string is complete
 String keypadInputString = ""; // a string to hold incoming data
 String serialInputString = ""; // a string to hold incoming data
-String delayedMessageBuffer = "";
+String delayedMessageBuffer = ""; //to hold future success message
 OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
 DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature.
 // arrays to hold device addresses
+// need to change names
 DeviceAddress  T1Thermometer = { 
-  0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E
+  0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E 
 DeviceAddress  T2Thermometer =  { 
   0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
+  //need to add pot sensor here
 unsigned long lastTempRequest = 0;
 int delayInMillis = 0;
 int idle = 0;
@@ -85,7 +84,8 @@ Metro metro1000 = Metro(1000);
 Metro metro100 = Metro(100);
 Metro metro500 = Metro(500);
 
-void switchWortPump(boolean command){
+void switchWortPump(boolean command, int commandCode){
+	//need to add command code messages to serial
   if (engage == off){
     Serial.write("System Disengaged");
   }
@@ -130,6 +130,8 @@ void loop()
     serialInputString = "";
     stringComplete = false;
   }
+  
+  //need to add command decomposition and subrouting switching section
 
   if (metro1000.check() == 1) {
     updateDisplay();
