@@ -7,25 +7,69 @@
 #include <Metro.h> // Include Metro library https://github.com/thomasfredericks/Metro-Arduino-Wiring/wiki
 
 //define pins
-#define ElementPowerPin 8
-#define PumpPowerPin 13
+
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 11
-#define AlarmPin 3
+#define on true
+#define off false
+const int AlarmPin = 3;
+const int ElementPowerPin = 8;
+const int wortPumpPin = 22;
+const int CIPPumpPin = 23;
+const int whirlpoolValvePin = 24;
+const int wortPipeValvePin = 25;
+const int drainValvePin = 26;
+const int filteredWaterValvePin = 27;
+const int coolingWaterInValvePin = 28;
+const int coolingWaterOutValvePin = 29;
 
 // Declare your program variables here
+
+//mechanical state variables
+boolean engage = off;
+int elementPowerLevelPercent = 0;
+//pumps
+boolean wortPump = off;
+boolean CIPPump = off;
+//valves
+boolean whirlpoolValve = off;
+boolean wortPipeValve = off;
+boolean drainValve = off;
+boolean filteredWaterValve = off;
+boolean coolingWaterInValve = off;
+boolean coolingWaterOutValve = off;
+
+//sensors
+float kettleTemp = 0;
+float whirlpoolTemp = 0;
+float coolingTemp = 0;
+float weight = 0;
+boolean lidFloatSensor = 0;
+boolean coolingBottomFloatSensor = 0;
+boolean coolingTopFloatSensor = 0;
+
+
+
+
+//calculated state variables
+float mashWeight = 0;
+float wortWeight = 0;
+float baseWeight = 0;
+float tapWaterTemp = 0;
+int elementPowerLevel = 0; //should be elementPowerLevelPercent times 2.55
+
+
 float T1Temp = 0; //in F
 float T2Temp = 0; //in F
 float setpoint = 65; //in F
 float diff = 1; // allowable differential
 int i = 0; //loop counter
-float samples[10]; // variables to make a better precision
 unsigned int sirenState = LOW;
-int heatState = LOW;
-int heatLevel = 5;
+
 boolean stringComplete = false; // whether the string is complete
 String keypadInputString = ""; // a string to hold incoming data
 String serialInputString = ""; // a string to hold incoming data
+String delayedMessageBuffer = "";
 OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
 DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature.
 // arrays to hold device addresses
@@ -36,11 +80,35 @@ DeviceAddress  T2Thermometer =  {
 unsigned long lastTempRequest = 0;
 int delayInMillis = 0;
 int idle = 0;
-int elementPowerLevel = 0;
+
 Metro metro1000 = Metro(1000);
 Metro metro100 = Metro(100);
 Metro metro500 = Metro(500);
 
+void switchWortPump(boolean command){
+  if (engage == off){
+    Serial.write("System Disengaged");
+  }
+  else {
+    if (command == on){
+      if (wortPumpPin == on){
+        Serial.write("Wort Pump already on");
+      }
+      else if (delayedMessageBuffer != ""){
+        Serial.write("Other command pending");
+      }
+      else {
+        digitalWrite(wortPumpPin, on);
+        //add non blocking wait command}
+      }
+      if (command == off){
+        digitalWrite(wortPumpPin, off);
+      }
+    }
+  }
+
+
+}
 
 //  MAIN CODE
 void loop()
@@ -65,7 +133,7 @@ void loop()
 
   if (metro1000.check() == 1) {
     updateDisplay();
-    Serial << (millis()/1000) << ", " << T1Temp << ", " << T2Temp << ", " << setpoint <<", " << elementPowerLevel << endl; //write status to serial
+    Serial << (millis()/1000) << ", " << T1Temp << ", " << T2Temp << ", " << setpoint <<", " << elementPowerLevelPercent << endl; //write status to serial
 
   }
 
@@ -86,30 +154,31 @@ void readTempsAndUpdate(){
   //update burner
   if (setpoint == 212){
     if (T1Temp < (setpoint - 2)){
-      elementPowerLevel = 255;
+      elementPowerLevelPercent = 100;
     }
     else if(T1Temp < setpoint){
-      elementPowerLevel = 160;
+      elementPowerLevelPercent = 50;
     }
     else {
-      elementPowerLevel = LOW;
+      elementPowerLevelPercent = off;
     }
   }
   else if (T1Temp < (setpoint - 2)){
-    elementPowerLevel = 255;
+    elementPowerLevelPercent = 100;
   }
   else if (T1Temp < (setpoint - 1.5)){
-    elementPowerLevel = 128;
+    elementPowerLevelPercent = 50;
   }
   else if (T1Temp < (setpoint - .5)){
-    elementPowerLevel = 64;
+    elementPowerLevelPercent = 25;
   }
   else  if (T1Temp < (setpoint)){
-    elementPowerLevel = 16;
+    elementPowerLevelPercent = 10;
   }
   else {
-    elementPowerLevel = LOW;
+    elementPowerLevelPercent = off;
   }
+  elementPowerLevel = elementPowerLevelPercent * 2.55;
 }
 
 void updateDisplay(){
@@ -119,9 +188,9 @@ void updateDisplay(){
   Serial1.print(setpoint, 1);
   Serial1.write(0);
   cursorSet(12,1);
-  if (elementPowerLevel > 0){
+  if (elementPowerLevelPercent > 0){
     Serial1.print("H:");
-    Serial1.print(elementPowerLevel);
+    Serial1.print(elementPowerLevelPercent);
   }
   else {
     Serial1.print("      ");
@@ -175,12 +244,30 @@ void setup(void)
 {
   keypadInputString.reserve(8);
   serialInputString.reserve(100);
-  Serial1.begin(19200); // era beginSerial
+  Serial1.begin(19200);
   Serial.begin(9600);
   LCDSetup();
 
   pinMode(AlarmPin, OUTPUT);
   analogWrite(AlarmPin, sirenState);
+  
+  pinMode(wortPumpPin, OUTPUT);
+  digitalWrite(wortPumpPin, LOW);
+  pinMode(CIPPumpPin, OUTPUT);
+  digitalWrite(CIPPumpPin, LOW);
+  pinMode(whirlpoolValvePin, OUTPUT);
+  digitalWrite(whirlpoolValvePin, LOW);
+  pinMode(wortPipeValvePin, OUTPUT);
+  digitalWrite(wortPipeValvePin, LOW);
+  pinMode(drainValvePin, OUTPUT);
+  digitalWrite(drainValvePin, LOW);
+  pinMode(filteredWaterValvePin, OUTPUT);
+  digitalWrite(filteredWaterValvePin, LOW);
+  pinMode(coolingWaterInValvePin, OUTPUT);
+  digitalWrite(coolingWaterInValvePin, LOW);
+  pinMode(coolingWaterOutValvePin, OUTPUT);
+  digitalWrite(coolingWaterOutValvePin, LOW);
+
 
   // Start up the library
   sensors.begin();
@@ -354,6 +441,7 @@ void LCDSetup(){
   clearLCD();
   Serial1.print("Booting"); 
 }
+
 
 
 
