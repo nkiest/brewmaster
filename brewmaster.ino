@@ -9,7 +9,6 @@
 
 //define pins
 const int ONE_WIRE_BUS = 30;
-const int TEMPERATURE_PRECISION = 11;
 const int AlarmPin = 3;
 const int ElementPowerPin = 8;
 const int wortPumpPin = 32; //Above 240V AC on side
@@ -23,19 +22,14 @@ const int coolingWaterInValvePin = 39;
 const int coolingWaterOutValvePin = 40;
 
 
-
 //calculated state variables
 float mashWeight = 0;
 float wortWeight = 0;
 float baseWeight = 0;
 float tapWaterTemp = 0;
-int elementPowerLevel = 0; //should be elementPowerLevelPercent times 2.55
 
-
-float T1Temp = 0; //in F
-float T2Temp = 0; //in F
 float setpoint = 65; //in F
-float diff = 1; // allowable differential
+const float diff = 1; // allowable differential
 int i = 0; //loop counter
 unsigned int sirenState = LOW;
 int delayUntilMessage = 0; //Countdown to wait until sending success message for delayed valves, etc
@@ -48,9 +42,9 @@ OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
 DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature.
 // arrays to hold device addresses
 // need to change names
-DeviceAddress  T1Thermometer = { 
+DeviceAddress  whirlpoolThermometer = { 
   0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E 
-DeviceAddress  T2Thermometer =  { 
+DeviceAddress  coolingOutThermometer =  { 
   0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
 DeviceAddress  kettleThermometer = {  
   0x28, 0x83, 0x4B, 0x46, 0x02, 0x00, 0x00, 0x92 }; //kettle 28834B4602000092

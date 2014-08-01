@@ -39,7 +39,7 @@ void inputHandler(){
 }
 
 void serialStatusMessage(){
-  Serial << (millis()/1000) << ", " << freeRam() << ", " << T1Temp << ", " << T2Temp << ", " << setpoint << ", " << elementPowerLevelPercent << ", " << digitalRead(wortPumpPin) << ", " << digitalRead(CIPPumpPin) << ", " << digitalRead(grainMillPin) << ", " << digitalRead(whirlpoolValvePin) << ", " << digitalRead(wortPipeValvePin) << ", " << digitalRead(drainValvePin) << endl;
+  Serial << (millis()/1000) << ", " << freeRam() << ", " << whirlpoolTemp << ", " << coolingTemp << ", " << setpoint << ", " << elementPowerLevelPercent << ", " << digitalRead(wortPumpPin) << ", " << digitalRead(CIPPumpPin) << ", " << digitalRead(grainMillPin) << ", " << digitalRead(whirlpoolValvePin) << ", " << digitalRead(wortPipeValvePin) << ", " << digitalRead(drainValvePin) << endl;
   
 }
 
@@ -66,7 +66,7 @@ void serialInitalize(){
   Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
 
   // display line one of CSV format to serial
-  Serial << "Time,T1 Temp,T2 Temp,Setpoint,Power Level" << endl;
+  Serial << "Time,coolingIn Temp,coolingOut Temp,Setpoint,Power Level" << endl;
 
 }
 

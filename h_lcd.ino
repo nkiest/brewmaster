@@ -14,11 +14,11 @@ void updateDisplay(){
   }
   cursorSet(0,2);
   Serial1.print("1:");
-  Serial1.print(T1Temp, 1);
+  Serial1.print(kettleTemp, 1);
   Serial1.write(0);
   cursorSet(9,2);
   Serial1.print("2:");
-  Serial1.print(T2Temp, 1);
+  Serial1.print(whirlpoolTemp, 1);
   Serial1.write(0);
 }
 

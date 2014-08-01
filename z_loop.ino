@@ -5,7 +5,7 @@ void loop()
 
   if (metro100.check() == 1){
     analogWrite(AlarmPin, sirenState);
-    analogWrite(ElementPowerPin, elementPowerLevel);
+    analogWrite(ElementPowerPin, elementPowerLevelPercent * 2.55);
   }
 
   if (stringComplete == true) {

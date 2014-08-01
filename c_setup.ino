@@ -1,7 +1,6 @@
 int outputPins[8] = {
   wortPumpPin,CIPPumpPin,whirlpoolValvePin,wortPipeValvePin,drainValvePin,filteredWaterValvePin,coolingWaterInValvePin,coolingWaterOutValvePin};
 
-
 void setup(void)
 {
   keypadInputString.reserve(8);
@@ -19,10 +18,11 @@ void setup(void)
   }
 
   // Start up the 1wire library
+  const int TEMPERATURE_PRECISION = 11;
   sensors.begin();
   sensors.setWaitForConversion(false);  // makes it async
-  sensors.setResolution(T1Thermometer, TEMPERATURE_PRECISION);
-  sensors.setResolution(T2Thermometer, TEMPERATURE_PRECISION);
+  sensors.setResolution(whirlpoolThermometer, TEMPERATURE_PRECISION);
+  sensors.setResolution(coolingOutThermometer, TEMPERATURE_PRECISION);
   sensors.setResolution(kettleThermometer, TEMPERATURE_PRECISION);
   sensors.setResolution(circuitThermometer, TEMPERATURE_PRECISION);
   sensors.requestTemperatures();

@@ -1,8 +1,8 @@
 
 void readTempsAndUpdate(){
   // get temperature
-  T1Temp = getTemperature(T1Thermometer);
-  T2Temp = getTemperature(T2Thermometer);
+  whirlpoolTemp = getTemperature(whirlpoolThermometer);
+  coolingTemp = getTemperature(coolingOutThermometer);
   kettleTemp = getTemperature(kettleThermometer);
   circuitTemp = getTemperature(circuitThermometer);
   sensors.requestTemperatures();  //async temp conversion request
@@ -40,7 +40,6 @@ void readTempsAndUpdate(){
   else {
     elementPowerLevelPercent = LOW;
   }
-  elementPowerLevel = elementPowerLevelPercent * 2.55;
 }
 
 

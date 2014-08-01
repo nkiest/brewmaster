@@ -1,7 +1,7 @@
 //mechanical state variables
 boolean engage = false;
 int elementPowerLevelPercent = 0;
-//pumps
+//pumpscoolingIn
 boolean wortPump = false;
 boolean CIPPump = false;
 //valves
@@ -23,6 +23,6 @@ boolean coolingTopFloatSensor = 0;
 
 int freeRam () {
   extern int __heap_start, *__brkval;
-  int v;
+  int v;  
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
