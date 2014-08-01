@@ -1,28 +1,12 @@
 void commands(){
-  if (currentCommand == "valve"){
+  if (currentCommand == "whirlpoolValve"){
     if ((commandArg1 == "on" )|| (commandArg1 == "off")){
       if (commandArg1 == "on" ){
-        if (digitalRead(valve) == HIGH){
-          Serial << commandNumber << ": Error: " << currentCommand << ": " << commandArg1 << " already ON" << endl;
-          clearCommand();
-          return;
-        }
-        else {
-          digitalWrite(valve, HIGH);
-        }
+        valve(whirlpoolValvePin, 1);
       }
       if (commandArg1 == "off" ){
-        if (digitalRead(valve) == LOW){
-          Serial << commandNumber << ": Error: " << currentCommand << ": " << commandArg1 << " already OFF" << endl;
-          clearCommand();
-          return;
-        }
-        else {
-          digitalWrite(valve, LOW);
-        }
+        valve(whirlpoolValvePin, 0);
       }
-      commandDelay = 2200;
-      Serial << commandNumber << ": " << currentCommand << ": " << commandArg1 << " received" << endl;
     }
     else {
       Serial << commandNumber << ": Error: Invalid argument" << endl;
@@ -30,6 +14,32 @@ void commands(){
       return;
     }
   }
+}
+
+//const int whirlpoolValvePin = 24;
+//const int wortPipeValvePin = 25;
+//const int drainValvePin = 26;
+
+void valve(int PIN, bool on){
+  if ((on == true) && (digitalRead(PIN) == HIGH)){
+    Serial << commandNumber << ": Error: " << currentCommand << ": " << commandArg1 << " already ON" << endl;
+    clearCommand();
+    return;
+  }
+  else if ((on == false) && (digitalRead(PIN) == LOW)){
+    Serial << commandNumber << ": Error: " << currentCommand << ": " << commandArg1 << " already OFF" << endl;
+    clearCommand();
+    return;
+  }
+  else if (on == true){
+    digitalWrite(PIN, HIGH);
+  }
+  else if (on == false){
+    digitalWrite(PIN, LOW);
+  }
+  commandDelay = 2200;
+  Serial << commandNumber << ": " << currentCommand << ": " << commandArg1 << " received" << endl;
+
 }
 
 void commandHandler(){
@@ -62,25 +72,26 @@ void clearCommand(){
 
 
 void switchWortPump(boolean command, int commandCode){
-	//need to add command code messages to serial
-  if (engage == off){
+  //need to add command code messages to serial
+  if (engage == false){
     Serial.write("System Disengaged");
   }
   else {
-    if (command == on){
-      if (wortPumpPin == on){
+    if (command == true){
+      if (wortPumpPin == HIGH){
         Serial.write("Wort Pump already on");
       }
       else if (delayedMessageBuffer != ""){
         Serial.write("Other command pending");
       }
       else {
-        digitalWrite(wortPumpPin, on);
+        digitalWrite(wortPumpPin, HIGH);
         //add non blocking wait command}
       }
-      if (command == off){
-        digitalWrite(wortPumpPin, off);
+      if (command == false){
+        digitalWrite(wortPumpPin, LOW);
       }
     }
   }
 }
+

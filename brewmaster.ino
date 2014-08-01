@@ -8,20 +8,19 @@
 #include <avr/pgmspace.h>
 
 //define pins
-const int ONE_WIRE_BUS = 2;
+const int ONE_WIRE_BUS = 30;
 const int TEMPERATURE_PRECISION = 11;
-#define on true
-#define off false
 const int AlarmPin = 3;
 const int ElementPowerPin = 8;
-const int wortPumpPin = 22;
-const int CIPPumpPin = 23;
-const int whirlpoolValvePin = 24;
-const int wortPipeValvePin = 25;
-const int drainValvePin = 26;
-const int filteredWaterValvePin = 27;
-const int coolingWaterInValvePin = 28;
-const int coolingWaterOutValvePin = 29;
+const int wortPumpPin = 32; //Above 240V AC on side
+const int grainMillPin = 33; //2 above 240V AC on side
+const int CIPPumpPin = 34; //On bottom corner, next to power in
+const int whirlpoolValvePin = 35; //RJ 8
+const int wortPipeValvePin = 36; //RJ 9
+const int drainValvePin = 37; //RJ 10
+const int filteredWaterValvePin = 38;
+const int coolingWaterInValvePin = 39;
+const int coolingWaterOutValvePin = 40;
 
 
 

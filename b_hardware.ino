@@ -1,20 +1,16 @@
-const int valve = 52;
-
-
-
 //mechanical state variables
-boolean engage = off;
+boolean engage = false;
 int elementPowerLevelPercent = 0;
 //pumps
-boolean wortPump = off;
-boolean CIPPump = off;
+boolean wortPump = false;
+boolean CIPPump = false;
 //valves
-boolean whirlpoolValve = off;
-boolean wortPipeValve = off;
-boolean drainValve = off;
-boolean filteredWaterValve = off;
-boolean coolingWaterInValve = off;
-boolean coolingWaterOutValve = off;
+boolean whirlpoolValve = false;
+boolean wortPipeValve = false;
+boolean drainValve = false;
+boolean filteredWaterValve = false;
+boolean coolingWaterInValve = false;
+boolean coolingWaterOutValve = false;
 //sensors
 float kettleTemp = 0;
 float whirlpoolTemp = 0;

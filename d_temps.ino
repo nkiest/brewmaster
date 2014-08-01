@@ -22,7 +22,7 @@ void readTempsAndUpdate(){
       elementPowerLevelPercent = 50;
     }
     else {
-      elementPowerLevelPercent = off;
+      elementPowerLevelPercent = LOW;
     }
   }
   else if (T1Temp < (setpoint - 2)){
@@ -38,7 +38,7 @@ void readTempsAndUpdate(){
     elementPowerLevelPercent = 10;
   }
   else {
-    elementPowerLevelPercent = off;
+    elementPowerLevelPercent = LOW;
   }
   elementPowerLevel = elementPowerLevelPercent * 2.55;
 }
