@@ -1,3 +1,6 @@
+int outputPins[8] = {
+  wortPumpPin,CIPPumpPin,whirlpoolValvePin,wortPipeValvePin,drainValvePin,filteredWaterValvePin,coolingWaterInValvePin,coolingWaterOutValvePin};
+
 
 void setup(void)
 {
@@ -7,24 +10,13 @@ void setup(void)
 
   pinMode(AlarmPin, OUTPUT);
   analogWrite(AlarmPin, sirenState);
+  pinMode(ElementPowerPin, OUTPUT);
+  analogWrite(ElementPowerPin, LOW);
 
-  pinMode(wortPumpPin, OUTPUT);
-  digitalWrite(wortPumpPin, LOW);
-  pinMode(CIPPumpPin, OUTPUT);
-  digitalWrite(CIPPumpPin, LOW);
-  pinMode(whirlpoolValvePin, OUTPUT);
-  digitalWrite(whirlpoolValvePin, LOW);
-  pinMode(wortPipeValvePin, OUTPUT);
-  digitalWrite(wortPipeValvePin, LOW);
-  pinMode(drainValvePin, OUTPUT);
-  digitalWrite(drainValvePin, LOW);
-  pinMode(filteredWaterValvePin, OUTPUT);
-  digitalWrite(filteredWaterValvePin, LOW);
-  pinMode(coolingWaterInValvePin, OUTPUT);
-  digitalWrite(coolingWaterInValvePin, LOW);
-  pinMode(coolingWaterOutValvePin, OUTPUT);
-  digitalWrite(coolingWaterOutValvePin, LOW);
-
+  for (i = 0; i < 8; i += 1){
+    pinMode(outputPins[i], OUTPUT);
+    digitalWrite(outputPins[i], LOW);
+  }
 
   // Start up the 1wire library
   sensors.begin();
@@ -36,8 +28,8 @@ void setup(void)
   sensors.requestTemperatures();
   delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION)); 
   lastTempRequest = millis(); 
-  
-    serialInitalize();
+
+  serialInitalize();
 
   clearLCD();
   //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
@@ -45,5 +37,6 @@ void setup(void)
   //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
   TCCR2B = TCCR2B & 0b11111000 | 0x06; //122hz
 }
+
 
 

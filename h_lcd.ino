@@ -1,6 +1,3 @@
-
-
-
 void updateDisplay(){
   clearLCD();
   cursorSet(0,1);

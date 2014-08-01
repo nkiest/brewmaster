@@ -1,7 +1,7 @@
 String validCommands[10] = {"grind","fill","heatTo","boil","wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump","holdAt"};
 String zeroArgCommands[] = {"grind"};
 String singleNumericArgCommands[] = {"fill","heatTo","boil"};
-String boolCommands[] = {"wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump"};
+String boolCommands[5] = {"wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump"};
 String doubleNumericCommands[] = {"holdAt"};
 String highLevelCommands[] = {"recirculate","whirlpool","drain","liftMash","dumpMash","CIP","lid"}; //not implemented yet
 
@@ -20,6 +20,13 @@ void commandHandler(){
     clearCommand();
     return;
   }
+  
+  if (delayedMessageBuffer != ""){
+        Serial << commandNumber << ": Error: Other command pending" << endl;
+        clearCommand();
+        return;
+      }
+  
   commandArg1 = commandPart[2];
   commandArg2 = commandPart[3];
   
@@ -36,11 +43,15 @@ void commandHandler(){
     return;
   }
   
-  int PIN;
-  bool on;
-
   //on off commands
-  boolCommand();
+  bool isBoolCommand;
+  for (j = 0; j < 5; j += 1){
+    if (boolCommands[j] == currentCommand){
+      isBoolCommand = true;
+    }
+  }
+  if (isBoolCommand == true){
+  boolCommand();}
 }
 
 void boolCommand(){
@@ -60,9 +71,6 @@ void boolCommand(){
   }
   else if (currentCommand == "CIPPump") {
     PIN = CIPPumpPin;
-  }
-  else {
-    return;
   }
   if (commandArg1 == "on") {
     on = true;
@@ -97,8 +105,6 @@ void boolCommand(){
 }
 
 
- 
-
 void clearCommand(){
   commandPart[0] = "";
   commandNumber = 0;
@@ -108,31 +114,6 @@ void clearCommand(){
   commandArg1 = "";
   commandPart[3] = "";
   commandArg2 = "";
-}
-
-
-void switchWortPump(boolean command, int commandCode){
-  //need to add command code messages to serial
-  if (engage == false){
-    Serial.write("System Disengaged");
-  }
-  else {
-    if (command == true){
-      if (wortPumpPin == HIGH){
-        Serial.write("Wort Pump already on");
-      }
-      else if (delayedMessageBuffer != ""){
-        Serial.write("Other command pending");
-      }
-      else {
-        digitalWrite(wortPumpPin, HIGH);
-        //add non blocking wait command}
-      }
-      if (command == false){
-        digitalWrite(wortPumpPin, LOW);
-      }
-    }
-  }
 }
 
 

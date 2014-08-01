@@ -7,34 +7,34 @@ void readTempsAndUpdate(){
   circuitTemp = getTemperature(circuitThermometer);
   sensors.requestTemperatures();  //async temp conversion request
   //set siren
-  if (T1Temp > setpoint){
-    sirenState = (T1Temp - setpoint) * 8;
+  if (kettleTemp > setpoint){
+    sirenState = (kettleTemp - setpoint) * 8;
   }
   else {
     sirenState = LOW;
   }
   //update burner
   if (setpoint == 212){
-    if (T1Temp < (setpoint - 2)){
+    if (kettleTemp < (setpoint - 2)){
       elementPowerLevelPercent = 100;
     }
-    else if(T1Temp < setpoint){
+    else if(kettleTemp < setpoint){
       elementPowerLevelPercent = 50;
     }
     else {
       elementPowerLevelPercent = LOW;
     }
   }
-  else if (T1Temp < (setpoint - 2)){
+  else if (kettleTemp < (setpoint - 2)){
     elementPowerLevelPercent = 100;
   }
-  else if (T1Temp < (setpoint - 1.5)){
+  else if (kettleTemp < (setpoint - 1.5)){
     elementPowerLevelPercent = 50;
   }
-  else if (T1Temp < (setpoint - .5)){
+  else if (kettleTemp < (setpoint - .5)){
     elementPowerLevelPercent = 25;
   }
-  else  if (T1Temp < (setpoint)){
+  else  if (kettleTemp < (setpoint)){
     elementPowerLevelPercent = 10;
   }
   else {
