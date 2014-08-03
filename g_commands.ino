@@ -7,22 +7,17 @@ String highLevelCommands[] = {"recirculate","whirlpool","drain","liftMash","dump
 
 //checks for valid command number, runs commands();
 void commandHandler(){
-  commandNumber = commandPart[0].toInt();
-  if (commandNumber == 0){
-    Serial << "Error: Invalid command number" << endl;
-    clearCommand();
-    return;
-  }
+  databaseID = commandPart[0].toInt();
   currentCommand = commandPart[1];
   
   if (currentCommand == ""){
-    Serial << commandNumber << ": Error: No command given" << endl;
+    Serial << databaseID << ",error,no command given" << endl;
     clearCommand();
     return;
   }
   
   if (delayedMessageBuffer != ""){
-        Serial << commandNumber << ": Error: Other command pending" << endl;
+        Serial << databaseID << ",error,other command pending" << endl;
         clearCommand();
         return;
       }
@@ -38,7 +33,7 @@ void commandHandler(){
     }
   }
   if (valid == false){
-  Serial << commandNumber << ": Error: Invalid Command" << endl;
+  Serial << databaseID << "error,invalid command" << endl;
     clearCommand();
     return;
   }
@@ -79,17 +74,17 @@ void boolCommand(){
     on = false;
   }
   else {
-    Serial << commandNumber << ": Error: Invalid argument" << endl;
+    Serial << databaseID << ": Error: Invalid argument" << endl;
     clearCommand();
     return;
   }
   if ((on == true) && (digitalRead(PIN) == HIGH)){
-    Serial << commandNumber << ": Error: " << currentCommand << ": " << commandArg1 << " already ON" << endl;
+    Serial << databaseID << ",error,already on" << endl;
     clearCommand();
     return;
   }
   else if ((on == false) && (digitalRead(PIN) == LOW)){
-    Serial << commandNumber << ": Error: " << currentCommand << ": " << commandArg1 << " already OFF" << endl;
+    Serial << databaseID << ",error,already off" << endl;
     clearCommand();
     return;
   }
@@ -100,14 +95,14 @@ void boolCommand(){
     digitalWrite(PIN, LOW);
   }
  commandDelay = 2200;
-  Serial << commandNumber << ": " << currentCommand << ": " << commandArg1 << " received" << endl;
+  Serial << databaseID << ",received" << endl;
 
 }
 
 
 void clearCommand(){
   commandPart[0] = "";
-  commandNumber = 0;
+  databaseID = 0;
   commandPart[1] = "";
   currentCommand = "";
   commandPart[2] = "";

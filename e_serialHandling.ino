@@ -7,7 +7,7 @@ int     commaPosition;
 String  commandPart[4];
 String commandArg1;
 String commandArg2;
-int commandNumber;
+int databaseID;
 int commandDelay = 0;
 
 
@@ -24,7 +24,6 @@ void inputHandler(){
     {  // here after the last comma is found
       if(commandSequence.length() > 0)
         commandPart[i] = commandSequence;              
-
     }
   }
   while    (commaPosition >=0 && i < 4);  
