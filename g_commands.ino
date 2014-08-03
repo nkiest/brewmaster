@@ -1,57 +1,68 @@
-String validCommands[10] = {"grind","fill","heatTo","boil","wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump","holdAt"};
-String zeroArgCommands[] = {"grind"};
-String singleNumericArgCommands[] = {"fill","heatTo","boil"};
-String boolCommands[5] = {"wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump"};
-String doubleNumericCommands[] = {"holdAt"};
-String highLevelCommands[] = {"recirculate","whirlpool","drain","liftMash","dumpMash","CIP","lid"}; //not implemented yet
+String validCommands[10] = {
+  "grind","fill","heatTo","boil","wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump","holdAt"};
+String zeroArgCommands[] = {
+  "grind"};
+String singleNumericArgCommands[3] = {
+  "fill","heatTo","boil"};
+String boolCommands[5] = {
+  "wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump"};
+String doubleNumericCommands[] = {
+  "holdAt"};
+String highLevelCommands[] = {
+  "recirculate","cool","whirlpool","drain","liftMash","dumpMash","CIP","lid"}; //not implemented yet
 
 //checks for valid command number, runs commands();
 void commandHandler(){
   databaseID = commandPart[0].toInt();
   currentCommand = commandPart[1];
-  
+
   if (currentCommand == ""){
-    Serial << databaseID << ",error,no command given" << endl;
+    Serial << databaseID << ",error,no command given,1st" << endl;
+    Serial << currentCommand << endl;
     clearCommand();
     return;
   }
-  
+
   if (delayedMessageBuffer != ""){
-        Serial << databaseID << ",error,other command pending" << endl;
-        clearCommand();
-        return;
-      }
-  
+    Serial << databaseID << ",error,other command pending" << endl;
+    clearCommand();
+    return;
+  }
+
   commandArg1 = commandPart[2];
   commandArg2 = commandPart[3];
-  
+
   int j;
-  bool valid;
+  boolean valid;
   for (j = 0; j < 10; j += 1){
     if (validCommands[j] == currentCommand){
       valid = true;
     }
   }
   if (valid == false){
-  Serial << databaseID << "error,invalid command" << endl;
+    Serial << databaseID << "error,invalid command" << endl;
     clearCommand();
     return;
   }
-  
+
   //on off commands
-  bool isBoolCommand;
+  boolean isBoolCommand;
   for (j = 0; j < 5; j += 1){
     if (boolCommands[j] == currentCommand){
-      isBoolCommand = true;
+      boolCommand();
     }
   }
-  if (isBoolCommand == true){
-  boolCommand();}
+  boolean isSingleNumericArgCommand;
+  for (j = 0; j < 3; j += 1){
+    if (singleNumericArgCommands[j] == currentCommand){
+      singleNumericArgCommand();
+    }
+  }
 }
 
 void boolCommand(){
   int PIN;
-  bool on;
+  boolean on;
   if (currentCommand == "whirlpoolValve") {
     PIN = whirlpoolValvePin;
   }
@@ -74,7 +85,7 @@ void boolCommand(){
     on = false;
   }
   else {
-    Serial << databaseID << ": Error: Invalid argument" << endl;
+    Serial << databaseID << ",error,invalid argument" << endl;
     clearCommand();
     return;
   }
@@ -94,9 +105,27 @@ void boolCommand(){
   else if (on == false){
     digitalWrite(PIN, LOW);
   }
- commandDelay = 2200;
+  commandDelay = 2200;
   Serial << databaseID << ",received" << endl;
+}
 
+void singleNumericArgCommand(){
+  //int PIN;
+  //int arg;
+  int param = commandArg1.toInt();
+  if (param == 0){
+    Serial << databaseID << ",error,nil argument" << endl;
+    clearCommand();
+    return;
+  }
+  if (currentCommand == "fill") {
+    Serial << databaseID << ",received" << endl;
+    startFill(param);
+  }
+  else if (currentCommand == "heatTo") {
+  }
+  else if (currentCommand == "boil") {
+  }
 }
 
 
@@ -110,5 +139,8 @@ void clearCommand(){
   commandPart[3] = "";
   commandArg2 = "";
 }
+
+
+
 
 

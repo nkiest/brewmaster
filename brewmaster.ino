@@ -21,13 +21,6 @@ const int filteredWaterValvePin = 38;
 const int coolingWaterInValvePin = 39;
 const int coolingWaterOutValvePin = 40;
 
-
-//calculated state variables
-float mashWeight = 0;
-float wortWeight = 0;
-float baseWeight = 0;
-float tapWaterTemp = 0;
-
 float setpoint = 65; //in F
 const float diff = 1; // allowable differential
 int i = 0; //loop counter

@@ -1,10 +1,9 @@
 //This file controls all serial0 (USB) serial handling
-
 String commandSequence = ""; 
 String currentCommand = "";
 boolean stringComplete = false; // whether the string is complete
-int     commaPosition;
-String  commandPart[4];
+int commaPosition;
+String commandPart[4];
 String commandArg1;
 String commandArg2;
 int databaseID;
@@ -12,34 +11,34 @@ int commandDelay = 0;
 
 
 void inputHandler(){
+  int k = 0;
   do {
     commaPosition = commandSequence.indexOf(',');
     if(commaPosition != -1)
     {
-      commandPart[i] = commandSequence.substring(0,commaPosition);
+      commandPart[k] = commandSequence.substring(0,commaPosition);
       commandSequence = commandSequence.substring(commaPosition+1, commandSequence.length());
-      i++;
+      k++;
     }
     else
     {  // here after the last comma is found
       if(commandSequence.length() > 0)
-        commandPart[i] = commandSequence;              
+        commandPart[k] = commandSequence;              
     }
   }
-  while    (commaPosition >=0 && i < 4);  
+  while    (commaPosition >=0 && k < 4);  
+
   // clear the string:
   commandSequence = "";
   stringComplete = false;
-  i = 0;
   commandHandler();
   clearLCD();
   updateDisplay();
-
 }
 
 void serialStatusMessage(){
   Serial << (millis()/1000) << ", " << freeRam() << ", " << whirlpoolTemp << ", " << coolingTemp << ", " << setpoint << ", " << elementPowerLevelPercent << ", " << digitalRead(wortPumpPin) << ", " << digitalRead(CIPPumpPin) << ", " << digitalRead(grainMillPin) << ", " << digitalRead(whirlpoolValvePin) << ", " << digitalRead(wortPipeValvePin) << ", " << digitalRead(drainValvePin) << endl;
-  
+
 }
 
 void serialEvent() {
@@ -63,9 +62,9 @@ void serialInitalize(){
   Serial.begin(9600);
   // locate devices on the bus
   Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
-
   // display line one of CSV format to serial
   Serial << "Time,coolingIn Temp,coolingOut Temp,Setpoint,Power Level" << endl;
 
 }
+
 

@@ -3,8 +3,6 @@ int outputPins[8] = {
 
 void setup(void)
 {
-  keypadInputString.reserve(8);
-  Serial1.begin(19200);
   LCDSetup();
 
   pinMode(AlarmPin, OUTPUT);
@@ -17,6 +15,12 @@ void setup(void)
     digitalWrite(outputPins[i], LOW);
   }
 
+
+  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
+  TCCR4B = TCCR4B & B11111000 | B00000101; // set timer 4 divisor to  1024 for PWM frequency of 30.64 Hz
+  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
+  TCCR2B = TCCR2B & 0b11111000 | 0x06; //122hz
+  
   // Start up the 1wire library
   const int TEMPERATURE_PRECISION = 11;
   sensors.begin();
@@ -30,12 +34,9 @@ void setup(void)
   lastTempRequest = millis(); 
 
   serialInitalize();
+  scaleInitalize();
 
   clearLCD();
-  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
-  TCCR4B = TCCR4B & B11111000 | B00000101; // set timer 4 divisor to  1024 for PWM frequency of 30.64 Hz
-  //sets Arduino Mega's pin 6,7,8 to diff PWM frequency
-  TCCR2B = TCCR2B & 0b11111000 | 0x06; //122hz
 }
 
 

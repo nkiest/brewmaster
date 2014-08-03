@@ -1,3 +1,5 @@
+//calculated state variables
+float tapWaterTemp = 0;
 
 void readTempsAndUpdate(){
   // get temperature

@@ -6,10 +6,23 @@ void loop()
   if (metro100.check() == 1){
     analogWrite(AlarmPin, sirenState);
     analogWrite(ElementPowerPin, elementPowerLevelPercent * 2.55);
+    if (filling == true){
+      fill();
+    }
+        if (currentCommand != "") {
+      commandDelay = commandDelay - 100;
+      if (commandDelay == 0){
+        Serial << databaseID << ",complete" << endl;
+        clearCommand();
+      }
+    }
   }
 
   if (stringComplete == true) {
     inputHandler();
+  }
+  if (scaleStringComplete == true) {
+    readScale();
   }
   
   

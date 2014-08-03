@@ -16,7 +16,7 @@ float kettleTemp = 0;
 float whirlpoolTemp = 0;
 float coolingTemp = 0;
 float circuitTemp = 0; //in F
-float weight = 0;
+
 boolean lidFloatSensor = 0;
 boolean coolingBottomFloatSensor = 0;
 boolean coolingTopFloatSensor = 0;

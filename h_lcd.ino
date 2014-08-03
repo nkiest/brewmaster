@@ -107,6 +107,9 @@ void backlightOff(){
 }
 
 void LCDSetup(){
+  keypadInputString.reserve(8);
+  Serial1.begin(19200);
+  
   //       Turn OFF AUTO line wrap
   Serial1.write(254); 
   Serial1.write(68); 
