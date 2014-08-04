@@ -11,11 +11,7 @@ boolean drainValve = false;
 boolean filteredWaterValve = false;
 boolean coolingWaterInValve = false;
 boolean coolingWaterOutValve = false;
-//sensors
-float kettleTemp = 0;
-float whirlpoolTemp = 0;
-float coolingTemp = 0;
-float circuitTemp = 0; //in F
+
 
 boolean lidFloatSensor = 0;
 boolean coolingBottomFloatSensor = 0;

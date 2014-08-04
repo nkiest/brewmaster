@@ -21,8 +21,7 @@ const int filteredWaterValvePin = 38;
 const int coolingWaterInValvePin = 39;
 const int coolingWaterOutValvePin = 40;
 
-float setpoint = 65; //in F
-const float diff = 1; // allowable differential
+
 int i = 0; //loop counter
 unsigned int sirenState = LOW;
 int delayUntilMessage = 0; //Countdown to wait until sending success message for delayed valves, etc
@@ -30,19 +29,7 @@ int delayUntilMessage = 0; //Countdown to wait until sending success message for
 String keypadInputString = ""; // a string to hold incoming data
 String delayedMessageBuffer = ""; //to hold future success message
 
-//1wire and temp
-OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
-DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature.
-// arrays to hold device addresses
-// need to change names
-DeviceAddress  whirlpoolThermometer = { 
-  0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E 
-DeviceAddress  coolingOutThermometer =  { 
-  0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
-DeviceAddress  kettleThermometer = {  
-  0x28, 0x83, 0x4B, 0x46, 0x02, 0x00, 0x00, 0x92 }; //kettle 28834B4602000092
-DeviceAddress  circuitThermometer =  {  
-  0x28, 0x8F, 0xEE, 0x7B, 0x05, 0x00, 0x00, 0xA1 }; //circuit 288FEE7B050000A1
+
 unsigned long lastTempRequest = 0;
 int delayInMillis = 0;
 int idle = 0;
