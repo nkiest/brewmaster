@@ -36,8 +36,8 @@ void inputHandler(){
 }
 
 void serialStatusMessage(){
-  Serial << (millis()/1000) <<", "<< freeRam() <<", "<< kettleTemp <<", "<< whirlpoolTemp <<", "<< coolingOutTemp <<", "<< circuitTemp <<", "<< weight <<", "<< setpoint <<", "<< elementPowerLevelPercent <<", "<< filling << ", "<< digitalRead(wortPumpPin) <<", "<< digitalRead(CIPPumpPin) <<", "<< digitalRead(grainMillPin) <<", "<< digitalRead(whirlpoolValvePin) <<", "<< digitalRead(wortPipeValvePin) <<", "<< digitalRead(drainValvePin) << endl;
-
+  Serial << (millis()/1000) << "," << databaseID <<","<< freeRam() <<","<< kettleTemp << ","<< digitalRead(wortPumpPin) <<","<< whirlpoolTemp <<","<< coolingOutTemp <<","<< circuitTemp <<","<< weight <<","<< setpoint <<","<< elementPowerLevelPercent <<","<< filling << ","<< digitalRead(wortPumpPin) <<","<< digitalRead(CIPPumpPin) <<","<< digitalRead(grainMillPin) <<","<< digitalRead(whirlpoolValvePin) <<","<< digitalRead(wortPipeValvePin) <<","<< digitalRead(drainValvePin) << endl;
+ //elapsed_time, command_logs_id: cmd, free_ram: ram,kettle_degrees_fahrenheit: kettle_temp, wort_pump_on: wort_pump_on
 }
 
 void serialEvent() {
@@ -62,7 +62,7 @@ void serialInitalize(){
   // locate devices on the bus
   Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
   // display line one of CSV format to serial
-  Serial << "time,freeRam,kettleTemp,whirlpoolTemp,coolingOutTemp,circuitTemp,weight,setpoint,elementPowerLevelPercent,filling,wortPump,CIPPump,grainMill,whirlpoolValve,wortPipeValve,drainValve" << endl;
+  Serial << "time,currentCommand,freeRam,kettleTemp,whirlpoolTemp,coolingOutTemp,circuitTemp,weight,setpoint,elementPowerLevelPercent,filling,wortPump,CIPPump,grainMill,whirlpoolValve,wortPipeValve,drainValve" << endl;
 
 }
 

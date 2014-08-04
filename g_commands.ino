@@ -11,7 +11,7 @@ String doubleNumericCommands[] = {
 String highLevelCommands[] = {
   "recirculate","cool","whirlpool","drain","liftMash","dumpMash","CIP","lid"}; //not implemented yet
   
-  int databaseID;
+
 
 //checks for valid command number, runs commands();
 void commandHandler(){
