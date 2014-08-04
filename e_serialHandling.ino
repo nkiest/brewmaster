@@ -6,7 +6,6 @@ int commaPosition;
 String commandPart[4];
 String commandArg1;
 String commandArg2;
-int databaseID;
 int commandDelay = 0;
 
 
@@ -37,7 +36,7 @@ void inputHandler(){
 }
 
 void serialStatusMessage(){
-  Serial << (millis()/1000) << ", " << freeRam() << ", " << whirlpoolTemp << ", " << coolingTemp << ", " << setpoint << ", " << elementPowerLevelPercent << ", " << digitalRead(wortPumpPin) << ", " << digitalRead(CIPPumpPin) << ", " << digitalRead(grainMillPin) << ", " << digitalRead(whirlpoolValvePin) << ", " << digitalRead(wortPipeValvePin) << ", " << digitalRead(drainValvePin) << endl;
+  Serial << (millis()/1000) <<", "<< freeRam() <<", "<< kettleTemp <<", "<< whirlpoolTemp <<", "<< coolingOutTemp <<", "<< circuitTemp <<", "<< weight <<", "<< setpoint <<", "<< elementPowerLevelPercent <<", "<< filling << ", "<< digitalRead(wortPumpPin) <<", "<< digitalRead(CIPPumpPin) <<", "<< digitalRead(grainMillPin) <<", "<< digitalRead(whirlpoolValvePin) <<", "<< digitalRead(wortPipeValvePin) <<", "<< digitalRead(drainValvePin) << endl;
 
 }
 
@@ -63,7 +62,7 @@ void serialInitalize(){
   // locate devices on the bus
   Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
   // display line one of CSV format to serial
-  Serial << "Time,coolingIn Temp,coolingOut Temp,Setpoint,Power Level" << endl;
+  Serial << "time,freeRam,kettleTemp,whirlpoolTemp,coolingOutTemp,circuitTemp,weight,setpoint,elementPowerLevelPercent,filling,wortPump,CIPPump,grainMill,whirlpoolValve,wortPipeValve,drainValve" << endl;
 
 }
 

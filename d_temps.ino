@@ -24,7 +24,7 @@ const float diff = 1; // allowable differential
 //sensors
 float kettleTemp = 0;
 float whirlpoolTemp = 0;
-float coolingTemp = 0;
+float coolingOutTemp = 0;
 float circuitTemp = 0; //in F
 
 
@@ -45,7 +45,7 @@ void tempSetup(){
 void readTempsAndUpdate(){
   // get temperature
   whirlpoolTemp = getTemperature(whirlpoolThermometer);
-  coolingTemp = getTemperature(coolingOutThermometer);
+  coolingOutTemp = getTemperature(coolingOutThermometer);
   kettleTemp = getTemperature(kettleThermometer);
   circuitTemp = getTemperature(circuitThermometer);
   sensors.requestTemperatures();  //async temp conversion request

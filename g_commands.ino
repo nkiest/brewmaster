@@ -10,6 +10,8 @@ String doubleNumericCommands[] = {
   "holdAt"};
 String highLevelCommands[] = {
   "recirculate","cool","whirlpool","drain","liftMash","dumpMash","CIP","lid"}; //not implemented yet
+  
+  int databaseID;
 
 //checks for valid command number, runs commands();
 void commandHandler(){
@@ -28,10 +30,9 @@ void commandHandler(){
     clearCommand();
     return;
   }
-
   commandArg1 = commandPart[2];
   commandArg2 = commandPart[3];
-
+  
   int j;
   boolean valid;
   for (j = 0; j < 10; j += 1){
@@ -123,6 +124,7 @@ void singleNumericArgCommand(){
     startFill(param);
   }
   else if (currentCommand == "heatTo") {
+    
   }
   else if (currentCommand == "boil") {
   }

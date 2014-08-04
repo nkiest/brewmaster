@@ -1,11 +1,11 @@
 #define ETX 0x03
 String scaleString = ""; 
 boolean scaleStringComplete = false;
-boolean filling = false;
+
 
 //const int filteredWaterValvePin = 38;
 
-int weight = 0; //in oz
+
 
 int startingWeight;
 int targetWeight;

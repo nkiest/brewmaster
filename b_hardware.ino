@@ -12,6 +12,8 @@ boolean filteredWaterValve = false;
 boolean coolingWaterInValve = false;
 boolean coolingWaterOutValve = false;
 
+int weight = 0; //in oz
+boolean filling = false;
 
 boolean lidFloatSensor = 0;
 boolean coolingBottomFloatSensor = 0;
