@@ -14,6 +14,7 @@ void setup(void)
     pinMode(outputPins[i], OUTPUT);
     digitalWrite(outputPins[i], LOW);
   }
+  i = 0;
 
 
   //sets Arduino Mega's pin 6,7,8 to diff PWM frequency

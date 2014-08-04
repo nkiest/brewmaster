@@ -11,24 +11,24 @@ int commandDelay = 0;
 
 
 void inputHandler(){
-  int k = 0;
   do {
     commaPosition = commandSequence.indexOf(',');
     if(commaPosition != -1)
     {
-      commandPart[k] = commandSequence.substring(0,commaPosition);
+      commandPart[i] = commandSequence.substring(0,commaPosition);
       commandSequence = commandSequence.substring(commaPosition+1, commandSequence.length());
-      k++;
+      i++;
     }
     else
     {  // here after the last comma is found
       if(commandSequence.length() > 0)
-        commandPart[k] = commandSequence;              
+        commandPart[i] = commandSequence;              
     }
   }
-  while    (commaPosition >=0 && k < 4);  
+  while    (commaPosition >=0 && i < 4);  
 
   // clear the string:
+  i = 0;
   commandSequence = "";
   stringComplete = false;
   commandHandler();
