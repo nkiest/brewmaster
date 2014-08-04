@@ -31,5 +31,6 @@ void loop()
   if (metro1000.check() == 1) {
     updateDisplay();
    serialStatusMessage();
+   Serial3 << "~";
   }
 }

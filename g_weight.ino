@@ -42,10 +42,11 @@ void fill(){
 
 void readScale(){
   int interWeight = (scaleString.substring(3,5).toInt())*16 + scaleString.substring(10,11).toInt();
-  Serial << interWeight << endl; //debug
   if ((interWeight > 0) && (interWeight < 1920)){ //sanity check
     weight = interWeight;
   }
+  scaleStringComplete = false;
+  scaleString = "";
 }
 
 void scaleInitalize(){
@@ -55,10 +56,10 @@ void scaleInitalize(){
   Serial3 << "~";
 }
 
-void serial3Event() {
+void serialEvent3() {
   while (Serial3.available()) {
     // get the new byte:
-    char inChar = (char)Serial.read(); 
+    char inChar = (char)Serial3.read(); 
     // if the incoming character is a newline, set a flag
     // so the main loop can do something about it:
     if (inChar == ETX) {
