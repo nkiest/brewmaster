@@ -22,6 +22,7 @@ const int coolingWaterInValvePin = 39;
 const int coolingWaterOutValvePin = 40;
 
 int databaseID;
+int commandDelay = 0;
 
 int i = 0; //loop counter
 unsigned int sirenState = LOW;

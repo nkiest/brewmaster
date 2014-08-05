@@ -9,7 +9,7 @@ void loop()
     if (filling == true){
       fill();
     }
-        if (currentCommand != "") {
+    if (currentCommand != "") {
       commandDelay = commandDelay - 100;
       if (commandDelay == 0){
         Serial << databaseID << ",complete" << endl;
@@ -24,13 +24,22 @@ void loop()
   if (scaleStringComplete == true) {
     readScale();
   }
-  
-  
+
+
   //need to add command decomposition and subrouting switching section
 
   if (metro1000.check() == 1) {
     updateDisplay();
-   serialStatusMessage();
-   Serial3 << "~";
+    serialStatusMessage();
+    Serial3 << "~";
+    if (boilTimeSec > 0){
+      boilTimeSec -= 1;
+      if (boilTimeSec = 0){
+        endBoil();
+      }
+    }
+
   }
 }
+
+

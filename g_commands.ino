@@ -124,9 +124,11 @@ void singleNumericArgCommand(){
     startFill(param);
   }
   else if (currentCommand == "heatTo") {
+    heatToStart(param);
     
   }
   else if (currentCommand == "boil") {
+    startBoil(param);
   }
 }
 

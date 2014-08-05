@@ -6,7 +6,6 @@ int commaPosition;
 String commandPart[4];
 String commandArg1;
 String commandArg2;
-int commandDelay = 0;
 
 
 void inputHandler(){
@@ -59,6 +58,7 @@ void serialEvent() {
 void serialInitalize(){
   commandSequence.reserve(200);
   Serial.begin(9600);
+  delay(1000);
   // locate devices on the bus
   Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
   // display line one of CSV format to serial

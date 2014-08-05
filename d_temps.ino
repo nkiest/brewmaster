@@ -1,6 +1,8 @@
 //calculated state variables
 float tapWaterTemp = 0;
-
+boolean heat = false;
+boolean heatToActive = false;
+int boilTimeSec = 0;
 
 //1wire and temp
 OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
@@ -29,7 +31,7 @@ float circuitTemp = 0; //in F
 
 
 void tempSetup(){
-    // Start up the 1wire library
+  // Start up the 1wire library
   const int TEMPERATURE_PRECISION = 11;
   sensors.begin();
   sensors.setWaitForConversion(false);  // makes it async
@@ -57,37 +59,88 @@ void readTempsAndUpdate(){
     sirenState = LOW;
   }
   //update burner
-  if (setpoint == 212){
-    if (kettleTemp < (setpoint - 2)){
+  if (heat == false){
+    elementPowerLevelPercent = LOW;
+  }
+  else {
+    if (heatToActive == true){
+      if (kettleTemp > setpoint){
+        heat = false;
+        elementPowerLevelPercent = LOW;
+        commandDelay = 0;
+        Serial << databaseID << ",complete" << endl;
+        heatToActive = false;
+        clearCommand();
+      }
+      else {
+        commandDelay = 10000;
+      }
+    }
+    if (setpoint == 212){
+      if (kettleTemp < (setpoint - 2)){
+        elementPowerLevelPercent = 100;
+      }
+      else if(kettleTemp < setpoint){
+        elementPowerLevelPercent = 50;
+      }
+      else {
+        elementPowerLevelPercent = LOW;
+      }
+    }
+    else if (kettleTemp < (setpoint - 2)){
       elementPowerLevelPercent = 100;
     }
-    else if(kettleTemp < setpoint){
+    else if (kettleTemp < (setpoint - 1.5)){
       elementPowerLevelPercent = 50;
+    }
+    else if (kettleTemp < (setpoint - .5)){
+      elementPowerLevelPercent = 25;
+    }
+    else  if (kettleTemp < (setpoint)){
+      if (heatToActive == true){
+        elementPowerLevelPercent = 20;
+      }
+      else elementPowerLevelPercent = 10;
     }
     else {
       elementPowerLevelPercent = LOW;
     }
   }
-  else if (kettleTemp < (setpoint - 2)){
-    elementPowerLevelPercent = 100;
-  }
-  else if (kettleTemp < (setpoint - 1.5)){
-    elementPowerLevelPercent = 50;
-  }
-  else if (kettleTemp < (setpoint - .5)){
-    elementPowerLevelPercent = 25;
-  }
-  else  if (kettleTemp < (setpoint)){
-    elementPowerLevelPercent = 10;
-  }
-  else {
-    elementPowerLevelPercent = LOW;
-  }
 }
-
 
 float getTemperature(DeviceAddress deviceAddress)
 {
   float tempF = sensors.getTempF(deviceAddress);
   return tempF;
 }
+
+void heatToStart(int goal){
+  if (setpoint > kettleTemp){    
+    Serial << databaseID << ",error,already exceeded setpoint" << endl;
+    clearCommand();
+    return;
+  }
+  Serial << databaseID << ",received" << endl;
+  heatToActive = true;
+  heat = true;
+  setpoint = goal;
+  commandDelay = 10000;
+}
+
+void startBoil(int minutes){
+  Serial << databaseID << ",received" << endl;
+  boilTimeSec = minutes*60;
+  heat = true;
+  setpoint = 212;
+  commandDelay = minutes*1000*90;
+}
+
+void endBoil(){
+        heat = false;
+        elementPowerLevelPercent = LOW;
+        commandDelay = 0;
+        Serial << databaseID << ",complete" << endl;
+        clearCommand();
+}
+
+
