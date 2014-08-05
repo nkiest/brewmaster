@@ -1,24 +1,18 @@
 void updateDisplay(){
   clearLCD();
   cursorSet(0,1);
-  Serial1.print("Set:");
-  Serial1.print(setpoint, 1);
+  Serial1.print("S:");
+  Serial1.print(setpoint, 0);
   Serial1.write(0);
-  cursorSet(12,1);
-  if (elementPowerLevelPercent > 0){
-    Serial1.print("H:");
-    Serial1.print(elementPowerLevelPercent);
-  }
-  else {
-    Serial1.print("      ");
-  }
+  cursorSet(9,1);
+  Serial1.print(currentCommand);
   cursorSet(0,2);
   Serial1.print("1:");
   Serial1.print(kettleTemp, 1);
   Serial1.write(0);
   cursorSet(9,2);
-  Serial1.print("2:");
-  Serial1.print(whirlpoolTemp, 1);
+  Serial1.print("P:");
+  Serial1.print(elementPowerLevelPercent);
   Serial1.write(0);
 }
 
