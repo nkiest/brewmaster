@@ -1,6 +1,5 @@
 //  MAIN CODE
-void loop()
-{ 
+void loop() { 
   if (metro500.check() == 1) readTempsAndUpdate();
 
   if (metro100.check() == 1){
@@ -25,21 +24,26 @@ void loop()
     readScale();
   }
 
-
   //need to add command decomposition and subrouting switching section
 
   if (metro1000.check() == 1) {
     updateDisplay();
     serialStatusMessage();
     Serial3 << "~";
-    if (boilTimeSec > 0){
-      boilTimeSec -= 1;
-      if (boilTimeSec = 0){
-        endBoil();
+    if (heatTimeSec > 0){
+      heatTimeSec -= 1;
+      if (heatTimeSec = 0){
+        if (setpoint == 212){
+          endBoil();
+        }
+        else{
+          endHoldAt();
+        }
       }
     }
 
   }
 }
+
 
 

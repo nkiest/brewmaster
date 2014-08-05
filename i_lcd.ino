@@ -37,9 +37,6 @@ void serialEvent1() {
     } 
   }
 }
-
-
-
 //------------------------------------------
 //  LCD  FUNCTIONS-- keep the ones you need. 
 
@@ -109,7 +106,7 @@ void backlightOff(){
 void LCDSetup(){
   keypadInputString.reserve(8);
   Serial1.begin(19200);
-  
+
   //       Turn OFF AUTO line wrap
   Serial1.write(254); 
   Serial1.write(68); 
@@ -122,31 +119,9 @@ void LCDSetup(){
   Serial1.write(84);   
   delay(200);  
 
-  //Enable Keypad Mode / Already default
-  //Serial1.write(254);
-  //  Serial1.write(37);
-  //  Serial1.write(0);
-
-
-  //Turn off auto transmit keypress
-  //Serial1.write(254);
-  //Serial1.write(79);
-
   //Turn on auto transmit keypress
   Serial1.write(254);
   Serial1.write(65);
-
-  //       Turn ON the block cursor
-  //         Serial1.write(254);
-  //         Serial1.write(83);  
-
-  //       Turn ON the underline cursor
-  //         Serial1.write(254);
-  //         Serial1.write(74);               
-
-  //       Turn OFF the underline cursor
-  //         Serial1.write(254);
-  //         Serial1.write(75);               
 
   // Custom Character for ° symbol
   Serial1.write(254);
@@ -193,3 +168,4 @@ void LCDSetup(){
   clearLCD();
   Serial1.print("Booting"); 
 }
+

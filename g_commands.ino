@@ -6,11 +6,11 @@ String singleNumericArgCommands[3] = {
   "fill","heatTo","boil"};
 String boolCommands[5] = {
   "wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump"};
-String doubleNumericCommands[] = {
+String doubleNumericCommands[1] = {
   "holdAt"};
 String highLevelCommands[] = {
   "recirculate","cool","whirlpool","drain","liftMash","dumpMash","CIP","lid"}; //not implemented yet
-  
+
 
 
 //checks for valid command number, runs commands();
@@ -32,7 +32,7 @@ void commandHandler(){
   }
   commandArg1 = commandPart[2];
   commandArg2 = commandPart[3];
-  
+
   int j;
   boolean valid;
   for (j = 0; j < 10; j += 1){
@@ -47,19 +47,27 @@ void commandHandler(){
   }
 
   //on off commands
-  boolean isBoolCommand;
   for (j = 0; j < 5; j += 1){
     if (boolCommands[j] == currentCommand){
       boolCommand();
     }
   }
-  boolean isSingleNumericArgCommand;
   for (j = 0; j < 3; j += 1){
     if (singleNumericArgCommands[j] == currentCommand){
       singleNumericArgCommand();
     }
   }
+  for (j = 0; j < 1; j += 1){
+    if (doubleNumericCommands[j] == currentCommand){
+      doubleNumericCommand();
+    }
+  }
+
+
+
+
 }
+
 
 void boolCommand(){
   int PIN;
@@ -124,14 +132,30 @@ void singleNumericArgCommand(){
     startFill(param);
   }
   else if (currentCommand == "heatTo") {
-    heatToStart(param);
-    
+    startHeatTo(param);
   }
   else if (currentCommand == "boil") {
     startBoil(param);
   }
 }
 
+void doubleNumericCommand(){
+  int one = commandArg1.toInt();
+  if (one == 0){
+    Serial << databaseID << ",error,nil argument" << endl;
+    clearCommand();
+    return;
+  }
+  int two = commandArg2.toInt();
+  if (two == 0){
+    Serial << databaseID << ",error,nil argument" << endl;
+    clearCommand();
+    return;
+  }
+  if (currentCommand == "holdAt") { 
+    startHoldAt(one,two);
+  }
+}
 
 void clearCommand(){
   commandPart[0] = "";
@@ -143,6 +167,8 @@ void clearCommand(){
   commandPart[3] = "";
   commandArg2 = "";
 }
+
+
 
 
 

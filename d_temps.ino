@@ -2,7 +2,7 @@
 float tapWaterTemp = 0;
 boolean heat = false;
 boolean heatToActive = false;
-int boilTimeSec = 0;
+int heatTimeSec = 0;
 
 //1wire and temp
 OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
@@ -18,17 +18,14 @@ DeviceAddress  kettleThermometer = {
 DeviceAddress  circuitThermometer =  {  
   0x28, 0x8F, 0xEE, 0x7B, 0x05, 0x00, 0x00, 0xA1 }; //circuit 288FEE7B050000A1
 
-
 float setpoint = 65; //in F
 const float diff = 1; // allowable differential
-
 
 //sensors
 float kettleTemp = 0;
 float whirlpoolTemp = 0;
 float coolingOutTemp = 0;
 float circuitTemp = 0; //in F
-
 
 void tempSetup(){
   // Start up the 1wire library
@@ -114,7 +111,7 @@ float getTemperature(DeviceAddress deviceAddress)
   return tempF;
 }
 
-void heatToStart(int goal){
+void startHeatTo(int goal){
   if (setpoint > kettleTemp){    
     Serial << databaseID << ",error,already exceeded setpoint" << endl;
     clearCommand();
@@ -129,18 +126,34 @@ void heatToStart(int goal){
 
 void startBoil(int minutes){
   Serial << databaseID << ",received" << endl;
-  boilTimeSec = minutes*60;
+  heatTimeSec = minutes*60;
   heat = true;
   setpoint = 212;
   commandDelay = minutes*1000*90;
 }
 
 void endBoil(){
-        heat = false;
-        elementPowerLevelPercent = LOW;
-        commandDelay = 0;
-        Serial << databaseID << ",complete" << endl;
-        clearCommand();
+  heat = false;
+  elementPowerLevelPercent = LOW;
+  commandDelay = 0;
+  Serial << databaseID << ",complete" << endl;
+  clearCommand();
+}
+
+void startHoldAt(int goal, int minutes){
+  Serial << databaseID << ",received" << endl;
+  heatTimeSec = minutes*60;
+  heat = true;
+  setpoint = goal;
+  commandDelay = minutes*1000*90;
+}
+
+void endHoldAt(){
+  heat = false;
+  elementPowerLevelPercent = LOW;
+  commandDelay = 0;
+  Serial << databaseID << ",complete" << endl;
+  clearCommand();
 }
 
 

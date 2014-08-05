@@ -31,7 +31,6 @@ int delayUntilMessage = 0; //Countdown to wait until sending success message for
 String keypadInputString = ""; // a string to hold incoming data
 String delayedMessageBuffer = ""; //to hold future success message
 
-
 unsigned long lastTempRequest = 0;
 int delayInMillis = 0;
 int idle = 0;
@@ -39,18 +38,4 @@ int idle = 0;
 Metro metro1000 = Metro(1000);
 Metro metro100 = Metro(100);
 Metro metro500 = Metro(500);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

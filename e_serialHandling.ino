@@ -24,7 +24,6 @@ void inputHandler(){
     }
   }
   while    (commaPosition >=0 && i < 4);  
-
   // clear the string:
   i = 0;
   commandSequence = "";
@@ -36,7 +35,7 @@ void inputHandler(){
 
 void serialStatusMessage(){
   Serial << (millis()/1000) << "," << databaseID <<","<< freeRam() <<","<< kettleTemp << ","<< digitalRead(wortPumpPin) <<","<< whirlpoolTemp <<","<< coolingOutTemp <<","<< circuitTemp <<","<< weight <<","<< setpoint <<","<< elementPowerLevelPercent <<","<< filling << ","<< digitalRead(wortPumpPin) <<","<< digitalRead(CIPPumpPin) <<","<< digitalRead(grainMillPin) <<","<< digitalRead(whirlpoolValvePin) <<","<< digitalRead(wortPipeValvePin) <<","<< digitalRead(drainValvePin) << endl;
- //elapsed_time, command_logs_id: cmd, free_ram: ram,kettle_degrees_fahrenheit: kettle_temp, wort_pump_on: wort_pump_on
+  //elapsed_time, command_logs_id: cmd, free_ram: ram,kettle_degrees_fahrenheit: kettle_temp, wort_pump_on: wort_pump_on
 }
 
 void serialEvent() {
@@ -54,7 +53,6 @@ void serialEvent() {
   }
 }
 
-
 void serialInitalize(){
   commandSequence.reserve(200);
   Serial.begin(9600);
@@ -63,7 +61,7 @@ void serialInitalize(){
   Serial << endl << "Found " << _DEC(sensors.getDeviceCount()) << " devices." << endl;
   // display line one of CSV format to serial
   Serial << "time,currentCommand,freeRam,kettleTemp,whirlpoolTemp,coolingOutTemp,circuitTemp,weight,setpoint,elementPowerLevelPercent,filling,wortPump,CIPPump,grainMill,whirlpoolValve,wortPipeValve,drainValve" << endl;
-
 }
+
 
 
