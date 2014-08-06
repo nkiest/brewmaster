@@ -4,8 +4,8 @@ String zeroArgCommands[] = {
   "grind"};
 String singleNumericArgCommands[3] = {
   "fill","heatTo","boil"};
-String boolCommands[5] = {
-  "wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump"};
+String boolCommands[6] = {
+  "wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump","cooling"};
 String doubleNumericCommands[1] = {
   "holdAt"};
 String highLevelCommands[] = {
@@ -47,7 +47,7 @@ void commandHandler(){
   }
 
   //on off commands
-  for (j = 0; j < 5; j += 1){
+  for (j = 0; j < 6; j += 1){
     if (boolCommands[j] == currentCommand){
       boolCommand();
     }
@@ -87,6 +87,11 @@ void boolCommand(){
   else if (currentCommand == "CIPPump") {
     PIN = CIPPumpPin;
   }
+  else if (currentCommand == "cooling") {
+    PIN = coolingWaterInValvePin;
+  }
+  
+  
   if (commandArg1 == "on") {
     on = true;
   }

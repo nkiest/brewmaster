@@ -22,10 +22,12 @@ void startFill(int vol){
 void fill(){
   if (weight > targetWeight){
     digitalWrite(filteredWaterValvePin,LOW);
-    filling = false;
-    commandDelay = 0;
-    Serial << databaseID << ",complete" << endl;
+    filling = false;   
+    int tempDatabaseID = databaseID;
+    Serial << tempDatabaseID << ",complete" << endl;
+    delay(1000);
     clearCommand();
+    commandDelay = 0;
     Serial3 << "~";
   }
   else {

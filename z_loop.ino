@@ -1,6 +1,9 @@
 //  MAIN CODE
 void loop() { 
-  if (metro500.check() == 1) readTempsAndUpdate();
+  if (metro500.check() == 1) {
+    readTempsAndUpdate();
+   Serial3 << "~"; 
+  }
 
   if (metro100.check() == 1){
     analogWrite(AlarmPin, sirenState);
@@ -29,7 +32,7 @@ void loop() {
   if (metro1000.check() == 1) {
     updateDisplay();
     serialStatusMessage();
-    Serial3 << "~";
+    
     if (heatTimeSec > 0){
       heatTimeSec -= 1;
       if (heatTimeSec = 0){

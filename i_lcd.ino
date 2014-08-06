@@ -7,13 +7,13 @@ void updateDisplay(){
   cursorSet(9,1);
   Serial1.print(currentCommand);
   cursorSet(0,2);
-  Serial1.print("1:");
+  Serial1.print("K:");
   Serial1.print(kettleTemp, 1);
   Serial1.write(0);
   cursorSet(9,2);
   Serial1.print("P:");
   Serial1.print(elementPowerLevelPercent);
-  Serial1.write(0);
+  Serial1.print("%");
 }
 
 void serialEvent1() {

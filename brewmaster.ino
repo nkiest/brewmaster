@@ -14,12 +14,12 @@ const int ElementPowerPin = 8;
 const int wortPumpPin = 32; //Above 240V AC on side
 const int grainMillPin = 33; //2 above 240V AC on side
 const int CIPPumpPin = 34; //On bottom corner, next to power in
-const int whirlpoolValvePin = 35; //RJ 8
-const int wortPipeValvePin = 36; //RJ 9
-const int drainValvePin = 37; //RJ 10
+const int whirlpoolValvePin = 36; //RJ 8
+const int wortPipeValvePin = 37; //RJ 9
+const int drainValvePin = 35; //RJ 10
 const int filteredWaterValvePin = 38;
 const int coolingWaterInValvePin = 39;
-const int coolingWaterOutValvePin = 40;
+const int coolingWaterOutValvePin = 50;
 
 int databaseID;
 int commandDelay = 0;
