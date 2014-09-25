@@ -9,14 +9,18 @@ OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
 DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature.
 // arrays to hold device addresses
 // need to change names
-DeviceAddress  whirlpoolThermometer = { 
-  0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E }; //1 2855A3F20400004E 
-DeviceAddress  coolingOutThermometer =  { 
-  0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1 }; //2 286022F3040000C1
-DeviceAddress  circuitThermometer = {  
-  0x28, 0x83, 0x4B, 0x46, 0x02, 0x00, 0x00, 0x92 }; //kettle 28834B4602000092
-DeviceAddress kettleThermometer  =  {  
-  0x28, 0x8F, 0xEE, 0x7B, 0x05, 0x00, 0x00, 0xA1 }; //circuit 288FEE7B050000A1
+DeviceAddress  whirlpoolThermometer = {
+  0x28, 0x55, 0xA3, 0xF2, 0x04, 0x00, 0x00, 0x4E
+}; //1 2855A3F20400004E
+DeviceAddress  coolingOutThermometer =  {
+  0x28, 0x60, 0x22, 0xF3, 0x04, 0x00, 0x00, 0xC1
+}; //2 286022F3040000C1
+DeviceAddress  circuitThermometer = {
+  0x28, 0x83, 0x4B, 0x46, 0x02, 0x00, 0x00, 0x92
+}; //kettle 28834B4602000092
+DeviceAddress kettleThermometer  =  {
+  0x28, 0x8F, 0xEE, 0x7B, 0x05, 0x00, 0x00, 0xA1
+}; //circuit 288FEE7B050000A1
 
 float setpoint = 65; //in F
 const float diff = 1; // allowable differential
@@ -27,7 +31,7 @@ float whirlpoolTemp = 0;
 float coolingOutTemp = 0;
 float circuitTemp = 0; //in F
 
-void tempSetup(){
+void tempSetup() {
   // Start up the 1wire library
   const int TEMPERATURE_PRECISION = 11;
   sensors.begin();
@@ -37,71 +41,75 @@ void tempSetup(){
   sensors.setResolution(kettleThermometer, TEMPERATURE_PRECISION);
   sensors.setResolution(circuitThermometer, TEMPERATURE_PRECISION);
   sensors.requestTemperatures();
-  delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION)); 
-  lastTempRequest = millis(); 
+  delayInMillis = 750 / (1 << (12 - TEMPERATURE_PRECISION));
+  lastTempRequest = millis();
 }
 
-void readTempsAndUpdate(){
+void readTempsAndUpdate() {
+  readTemps();
+  updateBurner();
+}
+
+
+void readTemps() {
   // get temperature
   whirlpoolTemp = getTemperature(whirlpoolThermometer);
   coolingOutTemp = getTemperature(coolingOutThermometer);
   kettleTemp = getTemperature(kettleThermometer);
   circuitTemp = getTemperature(circuitThermometer);
   sensors.requestTemperatures();  //async temp conversion request
-  //set siren
-  if (kettleTemp > setpoint){
-    sirenState = (kettleTemp - setpoint) * 8;
+  if (kettleTemp == 32) {
+    Serial << databaseID << ",error,kettle sensors not working" << endl;
+    heat = false;
   }
-  else {
-    sirenState = LOW;
-  }
-  //update burner
-  if (heat == false){
+}
+
+void updateBurner() {
+  if (heat == false) {
     elementPowerLevelPercent = LOW;
+    return;
   }
-  else {
-    if (heatToActive == true){
-      if (kettleTemp > setpoint){
-        heat = false;
-        elementPowerLevelPercent = LOW;
-        commandDelay = 0;
-        Serial << databaseID << ",complete" << endl;
-        heatToActive = false;
-        clearCommand();
-      }
-      else {
-        commandDelay = 10000;
-      }
+  if (heatToActive == true) {
+    if (kettleTemp > setpoint) {
+      heat = false;
+      elementPowerLevelPercent = LOW;
+      commandDelay = 0;
+      Serial << databaseID << ",complete" << endl;
+      heatToActive = false;
+      clearCommand();
     }
-    if (setpoint == 212){
-      if (kettleTemp < (setpoint - 2)){
-        elementPowerLevelPercent = 100;
-      }
-      else if(kettleTemp < setpoint){
-        elementPowerLevelPercent = 50;
-      }
-      else {
-        elementPowerLevelPercent = LOW;
-      }
+    else {
+      commandDelay = 10000;
     }
-    else if (kettleTemp < (setpoint - 2)){
-      elementPowerLevelPercent = 100;
+  }
+  if (setpoint == 212) {
+    if (kettleTemp < (setpoint - 3)) {
+      elementPowerLevelPercent = 75;
     }
-    else if (kettleTemp < (setpoint - 1.5)){
-      elementPowerLevelPercent = 50;
-    }
-    else if (kettleTemp < (setpoint - .5)){
-      elementPowerLevelPercent = 25;
-    }
-    else  if (kettleTemp < (setpoint)){
-      if (heatToActive == true){
-        elementPowerLevelPercent = 20;
-      }
-      else elementPowerLevelPercent = 10;
+    else if (kettleTemp < setpoint) {
+      elementPowerLevelPercent = 40;
     }
     else {
       elementPowerLevelPercent = LOW;
     }
+  }
+  else if (kettleTemp < (setpoint - 2)) {
+    elementPowerLevelPercent = 100;
+  }
+  else if (kettleTemp < (setpoint - 1.5)) {
+    elementPowerLevelPercent = 50;
+  }
+  else if (kettleTemp < (setpoint - .5)) {
+    elementPowerLevelPercent = 25;
+  }
+  else  if (kettleTemp < (setpoint)) {
+    if (heatToActive == true) {
+      elementPowerLevelPercent = 20;
+    }
+    else elementPowerLevelPercent = 10;
+  }
+  else {
+    elementPowerLevelPercent = LOW;
   }
 }
 
@@ -111,8 +119,8 @@ float getTemperature(DeviceAddress deviceAddress)
   return tempF;
 }
 
-void startHeatTo(int goal){
-  if (setpoint > kettleTemp){    
+void startHeatTo(int goal) {
+  if (goal < kettleTemp) {
     Serial << databaseID << ",error,already exceeded setpoint" << endl;
     clearCommand();
     return;
@@ -124,15 +132,15 @@ void startHeatTo(int goal){
   commandDelay = 10000;
 }
 
-void startBoil(int minutes){
+void startBoil(int minutes) {
   Serial << databaseID << ",received" << endl;
-  heatTimeSec = minutes*60;
+  heatTimeSec = minutes * 60;
   heat = true;
   setpoint = 212;
-  commandDelay = minutes*1000*90;
+  commandDelay = minutes * 1000 * 90;
 }
 
-void endBoil(){
+void endBoil() {
   heat = false;
   elementPowerLevelPercent = LOW;
   commandDelay = 0;
@@ -140,20 +148,18 @@ void endBoil(){
   clearCommand();
 }
 
-void startHoldAt(int goal, int minutes){
+void startHoldAt(int goal, int minutes) {
   Serial << databaseID << ",received" << endl;
-  heatTimeSec = minutes*60;
+  heatTimeSec = minutes * 60;
   heat = true;
   setpoint = goal;
-  commandDelay = minutes*1000*90;
+  commandDelay = minutes * 1000 * 90;
 }
 
-void endHoldAt(){
+void endHoldAt() {
   heat = false;
   elementPowerLevelPercent = LOW;
   commandDelay = 0;
   Serial << databaseID << ",complete" << endl;
   clearCommand();
 }
-
-
