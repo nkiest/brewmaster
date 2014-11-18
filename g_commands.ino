@@ -2,10 +2,10 @@ String validCommands[10] = {
   "grind","fill","heatTo","boil","wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump","holdAt"};
 String zeroArgCommands[] = {
   "grind"};
-String singleNumericArgCommands[3] = {
-  "fill","heatTo","boil"};
-String boolCommands[6] = {
-  "wortPump","whirlpoolValve","drainValve","wortPipeValve","CIPPump","cooling"};
+String singleNumericArgCommands[4] = {
+  "wortPump","fill","heatTo","boil"};
+String boolCommands[5] = {
+  "whirlpoolValve","drainValve","wortPipeValve","CIPPump","cooling"};
 String doubleNumericCommands[1] = {
   "holdAt"};
 String highLevelCommands[] = {
@@ -81,9 +81,6 @@ void boolCommand(){
   else if (currentCommand == "drainValve") {
     PIN = drainValvePin;
   }
-  else if (currentCommand == "wortPump") {
-    PIN = wortPumpPin;
-  }
   else if (currentCommand == "CIPPump") {
     PIN = CIPPumpPin;
   }
@@ -137,10 +134,16 @@ void singleNumericArgCommand(){
     startFill(param);
   }
   else if (currentCommand == "heatTo") {
+    Serial << databaseID << ",received" << endl;
     startHeatTo(param);
   }
   else if (currentCommand == "boil") {
+    Serial << databaseID << ",received" << endl;
     startBoil(param);
+  }
+  else if (currentCommand == "wortPump") {
+    Serial << databaseID << ",received" << endl;
+    setWortPump(param);
   }
 }
 
