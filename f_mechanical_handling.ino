@@ -1,6 +1,7 @@
 
 int wortPumpDutyCycle = 0; // 0= off, 1-100 percent on, 101+ invalid
-int wortPumpPeriod = 60; // seconds
+int wortPumpPeriod = 100; // seconds
+int wpi = 0; //wortpumpincrementer
 
 void setWortPump(int param) {
   if (param < 0 || param > 100) {
@@ -10,7 +11,7 @@ void setWortPump(int param) {
     clearCommand();
     return;
   }
-  if (param = 0) {
+  if (param == 0) {
     digitalWrite(wortPumpPin, 0);
     wortPumpDutyCycle = 0;
     commandDelay = 1000;

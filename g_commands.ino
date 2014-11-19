@@ -47,12 +47,12 @@ void commandHandler(){
   }
 
   //on off commands
-  for (j = 0; j < 6; j += 1){
+  for (j = 0; j < 5; j += 1){
     if (boolCommands[j] == currentCommand){
       boolCommand();
     }
   }
-  for (j = 0; j < 3; j += 1){
+  for (j = 0; j < 4; j += 1){
     if (singleNumericArgCommands[j] == currentCommand){
       singleNumericArgCommand();
     }
@@ -125,9 +125,10 @@ void singleNumericArgCommand(){
   //int arg;
   int param = commandArg1.toInt();
   if (param == 0){
+    if (currentCommand != "wortPump"){
     Serial << databaseID << ",error,nil argument" << endl;
     clearCommand();
-    return;
+    return;}
   }
   if (currentCommand == "fill") {
     Serial << databaseID << ",received" << endl;
